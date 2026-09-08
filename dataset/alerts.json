@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ALT-901",
+    "level": "critical",
+    "title": "CRITICAL: Route Deviation & Telemetry Halt",
+    "busId": "BUS-1102",
+    "route": "Route 101",
+    "location": "Main Junction (Sancheti Chowk)",
+    "time": "15:42 IST",
+    "detail": "Bus deviated 450m from designated corridor. Engine temperature sensor spiked to 98°C. Vehicle stationary.",
+    "actionLabel": "View on Map",
+    "status": "Unresolved",
+    "coordinates": [18.5281, 73.8509],
+    "category": "Telemetry Halt"
+  },
+  {
+    "id": "ALT-902",
+    "level": "warning",
+    "title": "WARNING: Severe Traffic Congestion Detected",
+    "busId": "MULTIPLE",
+    "route": "Route 12",
+    "location": "Sancheti Chowk Flyover Approach",
+    "time": "17:15 IST",
+    "detail": "Average vehicular speed dropped to 9 km/h. Expected service delay: +15 minutes.",
+    "actionLabel": "View Route & Reroute",
+    "status": "Active",
+    "coordinates": [18.5280, 73.8510],
+    "category": "Congestion"
+  },
+  {
+    "id": "ALT-903",
+    "level": "warning",
+    "title": "WARNING: High Passenger Overcrowding",
+    "busId": "BUS-1088",
+    "route": "Route 45",
+    "location": "Hadapsar Gadital Approach",
+    "time": "17:22 IST",
+    "detail": "Load sensors register 94% passenger capacity. Boarding refusal predicted at next 2 stops.",
+    "actionLabel": "Dispatch Standby",
+    "status": "Active",
+    "coordinates": [18.5030, 73.9180],
+    "category": "Overcrowding"
+  },
+  {
+    "id": "ALT-904",
+    "level": "info",
+    "title": "INFO: Battery Level Below 45%",
+    "busId": "BUS-1102",
+    "route": "Route 101",
+    "location": "Main Junction",
+    "time": "17:05 IST",
+    "detail": "State of Charge (SoC) reached 42%. Vehicle scheduled for fast-charging at Viman Nagar depot upon run completion.",
+    "actionLabel": "View Depot Chargers",
+    "status": "Monitoring",
+    "coordinates": [18.5281, 73.8509],
+    "category": "Battery / Energy"
+  },
+  {
+    "id": "ALT-905",
+    "level": "info",
+    "title": "INFO: Road Resurfacing Advisory",
+    "busId": "CIVIL",
+    "route": "Route 8",
+    "location": "Katraj Bypass Lane 3",
+    "time": "09:00 IST",
+    "detail": "Civil works until 21:00 IST. Diversion advisory active. Average slowdown 3.5 minutes.",
+    "actionLabel": "View Advisory",
+    "status": "Resolved",
+    "coordinates": [18.4575, 73.8677],
+    "category": "Civil Works"
+  }
+]

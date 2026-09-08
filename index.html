@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urban Transport Intelligence System | Government of India (SIH Prototype)</title>
+  
+  <meta name="description" content="AI-Powered Mobile Urban Intelligence Platform Using Public Transport Fleet - Official Smart India Hackathon Dashboard">
+  <meta name="theme-color" content="#0A2540">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Google Fonts: Noto Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS for GIS Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Government Design System Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-scale-md">
+
+  <!-- 1. TOP INDIAN TRICOLOR BAND -->
+  <div class="tiranga-topbar" aria-hidden="true">
+    <div class="band-saffron"></div>
+    <div class="band-white"></div>
+    <div class="band-green"></div>
+  </div>
+
+  <!-- 2. TOP GOVERNMENT HEADER -->
+  <header class="gov-header" role="banner">
+    <div class="header-left">
+      <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Navigation Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
+      <div class="gov-emblem-wrap">
+        <img src="assets/emblem.svg" alt="Government of India Emblem Placeholder" class="gov-emblem-img">
+      </div>
+
+      <div class="gov-title-group">
+        <span class="gov-entity" data-i18n="govIndia">Government of India</span>
+        <h1 class="gov-portal-name" data-i18n="portalTitle">Urban Transport Intelligence System</h1>
+        <div class="gov-sih-tag">
+          <span class="sih-badge">SIH PROTOTYPE</span>
+          <span data-i18n="subTitle">AI-Powered Mobile Urban Intelligence Platform Using Public Transport Fleet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Global Search -->
+      <div class="header-search">
+        <span class="header-search-icon">🔍</span>
+        <input type="search" id="headerGlobalSearch" placeholder="Search Bus, Route or Stop..." aria-label="Search transportation network">
+      </div>
+
+      <!-- Live IST Clock -->
+      <div id="headerLiveClock" style="font-size: 0.8rem; font-weight: 700; color: #93C5FD; font-variant-numeric: tabular-nums; display: none;">
+        --:--:-- IST
+      </div>
+
+      <!-- Accessibility Toolbar -->
+      <div class="a11y-controls" title="Accessibility Controls">
+        <button class="a11y-btn" id="a11y-font-sm" aria-label="Decrease font size">A-</button>
+        <button class="a11y-btn" id="a11y-font-md" aria-label="Reset font size">A</button>
+        <button class="a11y-btn" id="a11y-font-lg" aria-label="Increase font size">A+</button>
+        <button class="a11y-btn" id="a11y-contrast" title="High Contrast Mode" aria-label="Toggle High Contrast">◐</button>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="lang-selector">
+        <select id="headerLanguageSelect" aria-label="Select Interface Language">
+          <option value="en" selected>English</option>
+          <option value="hi">हिंदी</option>
+          <option value="mr">मराठी</option>
+        </select>
+      </div>
+
+      <!-- Notifications Bell -->
+      <button class="header-btn" id="headerNotifBtn" title="Critical System Alerts" aria-label="Notifications">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="notif-pulse"></span>
+      </button>
+
+      <!-- Officer Profile -->
+      <div class="user-profile-badge" title="Authenticated Government Control Officer">
+        <div class="user-avatar">RS</div>
+        <div class="user-info">
+          <span class="user-name">Shri R. Sharma</span>
+          <span class="user-role">Transport Control Officer</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. APP CONTAINER (SIDEBAR + MAIN WORKSPACE) -->
+  <div class="app-container">
+    
+    <!-- Collapsible Government Sidebar -->
+    <aside class="app-sidebar" id="appSidebar" role="navigation" aria-label="Main Portal Navigation">
+      <div class="sidebar-nav">
+        <div class="sidebar-section-title">Navigation Modules</div>
+
+        <a class="nav-item active" data-view="dashboard" href="#dashboard">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text" data-i18n="dashboard">Dashboard</span>
+        </a>
+
+        <a class="nav-item" data-view="fleet" href="#fleet">
+          <span class="nav-icon">🚌</span>
+          <span class="nav-text" data-i18n="liveFleet">Live Fleet</span>
+          <span class="nav-badge">1,087</span>
+        </a>
+
+        <a class="nav-item" data-view="map" href="#map">
+          <span class="nav-icon">🗺️</span>
+          <span class="nav-text" data-i18n="gisMap">GIS Map</span>
+        </a>
+
+        <a class="nav-item" data-view="analytics" href="#analytics">
+          <span class="nav-icon">🧠</span>
+          <span class="nav-text" data-i18n="aiAnalytics">AI Analytics</span>
+          <span class="nav-badge warning">AI Active</span>
+        </a>
+
+        <a class="nav-item" data-view="demand" href="#demand">
+          <span class="nav-icon">📈</span>
+          <span class="nav-text" data-i18n="demandPred">Demand Prediction</span>
+        </a>
+
+        <a class="nav-item" data-view="traffic" href="#traffic">
+          <span class="nav-icon">🚦</span>
+          <span class="nav-text" data-i18n="trafficRoutes">Traffic & Routes</span>
+        </a>
+
+        <a class="nav-item" data-view="alerts" href="#alerts">
+          <span class="nav-icon">🚨</span>
+          <span class="nav-text" data-i18n="alertsIncidents">Alerts & Incidents</span>
+          <span class="nav-badge">08</span>
+        </a>
+
+        <a class="nav-item" data-view="passenger" href="#passenger">
+          <span class="nav-icon">👥</span>
+          <span class="nav-text" data-i18n="passengerInfo">Passenger Portal</span>
+        </a>
+
+        <a class="nav-item" data-view="reports" href="#reports">
+          <span class="nav-icon">📋</span>
+          <span class="nav-text" data-i18n="reports">Reports</span>
+        </a>
+
+        <div class="sidebar-section-title">Administration</div>
+
+        <a class="nav-item" data-view="data-api" href="#data-api">
+          <span class="nav-icon">🔌</span>
+          <span class="nav-text" data-i18n="dataApis">Data & APIs</span>
+        </a>
+
+        <a class="nav-item" data-view="admin" href="#admin">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-text" data-i18n="administration">Administration</span>
+        </a>
+      </div>
+
+      <!-- Sidebar Footer Status -->
+      <div class="sidebar-footer">
+        <div class="sidebar-status-box">
+          <span class="live-indicator-dot"></span>
+          <div>
+            <div style="color: #FFFFFF; font-weight: 600;">System Online</div>
+            <div style="font-size: 0.70rem;">Telemetry Refresh: 3.5s</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Content Area -->
+    <main class="app-main" id="mainContent" role="main">
+
+      <!-- ====================================================================
+           VIEW 1: DASHBOARD (HOME)
+           ==================================================================== -->
+      <section class="view-panel active-view" id="view-dashboard">
+        
+        <!-- Top Status Principle Banner -->
+        <div class="operational-banner">
+          <div class="banner-content">
+            <span class="banner-badge">SEE → UNDERSTAND → DECIDE → ACT</span>
+            <div>
+              <div class="banner-title">Pune Smart Mobility Command: Normal Operations with Peak Advisory</div>
+              <div class="banner-subtitle">AI Neural Dispatch recommending 2 additional buses on Route 12 due to Sancheti Chowk delay.</div>
+            </div>
+          </div>
+          <div class="banner-actions">
+            <button class="btn btn-primary btn-sm" onclick="executeAiRecommendation('deployBuses')">Deploy Standby Buses</button>
+            <button class="btn btn-secondary btn-sm" data-action-view="map">Explore Live GIS</button>
+          </div>
+        </div>
+
+        <!-- Quick Actions Bar -->
+        <div class="quick-actions-bar">
+          <span class="quick-action-label">⚡ Quick Actions:</span>
+          <button class="quick-action-btn" data-action-view="fleet">🚌 Track Bus</button>
+          <button class="quick-action-btn" data-action-view="map">🗺️ View GIS Map</button>
+          <button class="quick-action-btn" data-action-view="alerts">🚨 View Alerts (8)</button>
+          <button class="quick-action-btn" data-action-view="demand">📈 Check Demand</button>
+          <button class="quick-action-btn" data-action-view="reports">📋 Generate Report</button>
+        </div>
+
+        <!-- 6 KPI CARDS (Required by specification) -->
+        <div class="kpi-grid">
+          <!-- Total Fleet -->
+          <div class="kpi-card border-accent-blue" data-action-view="fleet">
+            <div class="kpi-header">
+              <span class="kpi-label" data-i18n="totalFleet">Total Fleet</span>
+              <div class="kpi-icon-wrap" style="color: #1D4ED8;">🚌</div>
+            </div>
+            <div class="kpi-value" id="kpiTotalFleet">1,250</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend positive">↑ 100% Registered</span>
+              <span class="kpi-details-link">View Details →</span>
+            </div>
+          </div>
+
+          <!-- Active Buses -->
+          <div class="kpi-card border-accent-green" data-action-view="fleet">
+            <div class="kpi-header">
+              <span class="kpi-label" data-i18n="activeBuses">Active Buses</span>
+              <div class="kpi-icon-wrap" style="color: #10B981;">⚡</div>
+            </div>
+            <div class="kpi-value" id="kpiActiveBuses">1,087</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend positive">↑ 87% Active Service</span>
+              <span class="kpi-details-link">Track Live →</span>
+            </div>
+          </div>
+
+          <!-- On-Time Buses -->
+          <div class="kpi-card border-accent-green" data-action-view="fleet">
+            <div class="kpi-header">
+              <span class="kpi-label" data-i18n="onTimeBuses">On-Time Buses</span>
+              <div class="kpi-icon-wrap" style="color: #059669;">⏱️</div>
+            </div>
+            <div class="kpi-value" id="kpiOnTime">82%</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend positive">↑ +3.2% vs Yesterday</span>
+              <span class="kpi-details-link">Schedule Details →</span>
+            </div>
+          </div>
+
+          <!-- Delayed Buses -->
+          <div class="kpi-card border-accent-yellow" data-action-view="traffic">
+            <div class="kpi-header">
+              <span class="kpi-label" data-i18n="delayedBuses">Delayed Buses</span>
+              <div class="kpi-icon-wrap" style="color: #F59E0B;">⚠️</div>
+            </div>
+            <div class="kpi-value" id="kpiDelayed">126</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend warning">Avg delay: 8.4 min</span>
+              <span class="kpi-details-link">View Congestion →</span>
+            </div>
+          </div>
+
+          <!-- Critical Alerts -->
+          <div class="kpi-card border-accent-red" data-action-view="alerts">
+            <div class="kpi-header">
+              <span class="kpi-label" data-i18n="criticalAlerts">Critical Alerts</span>
+              <div class="kpi-icon-wrap" style="color: #DC2626;">🚨</div>
+            </div>
+            <div class="kpi-value" id="kpiCritical" style="color: #DC2626;">08</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend negative">Requires Control Action</span>
+              <span class="kpi-details-link">Resolve →</span>
+            </div>
+          </div>
+
+          <!-- Passenger Demand -->
+          <div class="kpi-card border-accent-orange" data-action-view="demand">
+            <div class="kpi-header">
+              <span class="kpi-label" data-i18n="passengerDemand">Passenger Demand</span>
+              <div class="kpi-icon-wrap" style="color: #EA580C;">📈</div>
+            </div>
+            <div class="kpi-value" id="kpiDemand">78%</div>
+            <div class="kpi-footer">
+              <span class="kpi-trend warning">Surge: University Road</span>
+              <span class="kpi-details-link">Demand Heatmap →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GIS MINI-MAP + PRIORITY ALERTS SECTION -->
+        <div class="grid-2-col">
+          <!-- Mini Live Map -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size: 1.1rem;">🗺️</span>
+                <div>
+                  <h2 class="card-title" style="font-size: 0.95rem;">Live Fleet Geographic Overview</h2>
+                  <div class="card-subtitle">Real-time GPS coordinates of active urban fleet</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" data-action-view="map">Full Screen GIS →</button>
+            </div>
+            <div class="card-body" style="padding: 0; height: 320px; position: relative;">
+              <div id="dashboardMiniMap" style="width: 100%; height: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Live Operational Alert Priority Feed -->
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span style="font-size: 1.1rem;">🚨</span>
+                <div>
+                  <h2 class="card-title" style="font-size: 0.95rem;">Priority Incidents & Alerts</h2>
+                  <div class="card-subtitle">Telemetry triggers needing supervisor response</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" data-action-view="alerts">View All (8) →</button>
+            </div>
+            <div class="card-body" style="padding: 16px; max-height: 320px; overflow-y: auto;">
+              
+              <!-- Critical 1 -->
+              <div class="alert-item critical">
+                <div class="alert-header">
+                  <div class="alert-title">CRITICAL: Bus 1102 Route Deviation Detected</div>
+                  <div class="alert-time">🕒 15:42 IST</div>
+                </div>
+                <div class="alert-detail">
+                  Vehicle diverted 450m from designated Route 101 corridor near Sancheti Chowk. Engine temperature sensor spiked.
+                </div>
+                <div class="alert-actions">
+                  <button class="btn btn-sm btn-primary" onclick="locateBusOnMap('BUS-1102')">Track on GIS Map</button>
+                  <button class="btn btn-sm btn-secondary" onclick="acknowledgeAlert('ALT-901')">Acknowledge</button>
+                </div>
+              </div>
+
+              <!-- Warning 2 -->
+              <div class="alert-item warning">
+                <div class="alert-header">
+                  <div class="alert-title">WARNING: Heavy Congestion on Route 12</div>
+                  <div class="alert-time">🕒 17:15 IST</div>
+                </div>
+                <div class="alert-detail">
+                  Average speed dropped below 12 km/h. Expected delay: 15 minutes. Alternate Route 12B available.
+                </div>
+                <div class="alert-actions">
+                  <button class="btn btn-sm btn-primary" onclick="executeAiRecommendation('rerouteBypass')">Activate Route 12B Bypass</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPLAINABLE AI TRANSPARENCY SECTION (SPECIFICATION REQUIREMENT #10) -->
+        <div class="ai-xai-card" style="margin-top: 24px;">
+          <div class="ai-xai-header">
+            <div>
+              <span class="ai-badge">🤖 EXPLAINABLE AI (XAI) DECISION ENGINE</span>
+              <h3 class="ai-recommendation-title">AI Recommendation: Deploy 2 Additional Buses to Route 12</h3>
+              <div style="font-size: 0.8rem; color: #475569; margin-top: 2px;">
+                Confidence Score: <strong>94.2%</strong> | Model: Multi-head Spatial-Temporal Graph Neural Network (STGNN-v3)
+              </div>
+            </div>
+            <button class="btn btn-primary" id="btnApproveAiDeploy" onclick="executeAiRecommendation('deployBuses')">
+              ✓ Approve & Dispatch 2 Buses
+            </button>
+          </div>
+
+          <div style="font-size: 0.85rem; font-weight: 700; color: #0A2540; margin-bottom: 8px;">
+            Why did AI make this decision? (Operational Transparency)
+          </div>
+
+          <!-- 4-Step Transparent Logic -->
+          <div class="xai-steps-grid">
+            <div class="xai-step-item">
+              <div class="xai-step-num">1</div>
+              <div class="xai-step-title">Surge in Demand</div>
+              <div class="xai-step-desc">
+                Passenger demand at University Road increased by <strong>+34%</strong> (850 projected passengers vs 610 capacity).
+              </div>
+            </div>
+
+            <div class="xai-step-item">
+              <div class="xai-step-num">2</div>
+              <div class="xai-step-title">High Overcrowding</div>
+              <div class="xai-step-desc">
+                Current active buses on Route 12 operate at <strong>91% load capacity</strong>, exceeding comfort & safety thresholds.
+              </div>
+            </div>
+
+            <div class="xai-step-item">
+              <div class="xai-step-num">3</div>
+              <div class="xai-step-title">Predicted Delay Spike</div>
+              <div class="xai-step-desc">
+                Traffic bottleneck at Sancheti Chowk will add <strong>14 min delays</strong> to existing buses within 20 minutes.
+              </div>
+            </div>
+
+            <div class="xai-step-item">
+              <div class="xai-step-num">4</div>
+              <div class="xai-step-title">Asset Readiness</div>
+              <div class="xai-step-desc">
+                Shivaji Nagar Depot has <strong>2 standby charged e-buses</strong> available 0.8 km away for immediate insertion.
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-impact-bar">
+            <span>📊 <strong>Projected Public Benefit:</strong> Dispatching avoids 42 minutes aggregate wait time and saves ~18.5 passenger-hours.</span>
+            <span style="color: #059669;">CO2 Impact: Zero (100% Electric Standby Units)</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           VIEW 2: LIVE FLEET MONITORING (SPECIFICATION REQUIREMENT #7)
+           ==================================================================== -->
+      <section class="view-panel" id="view-fleet">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Live Fleet Monitoring & Diagnostics</h2>
+              <div class="card-subtitle">Real-time telemetry from GPS and onboard CAN-bus modules across 1,250 municipal buses</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="exportFleetCSV()">📥 Export CSV</button>
+            </div>
+          </div>
+
+          <!-- Quick Fleet Category Counters -->
+          <div style="display: flex; gap: 12px; padding: 14px 20px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; flex-wrap: wrap;">
+            <div style="font-size: 0.8rem;">Total: <strong id="fleetCountTotal" style="color: #0A2540;">12</strong></div>
+            <div style="font-size: 0.8rem;">Active: <strong id="fleetCountActive" style="color: #059669;">9</strong></div>
+            <div style="font-size: 0.8rem;">Delayed: <strong id="fleetCountDelayed" style="color: #D97706;">3</strong></div>
+            <div style="font-size: 0.8rem;">Critical: <strong id="fleetCountCritical" style="color: #DC2626;">1</strong></div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="table-filter-bar">
+            <div class="filter-group">
+              <input type="text" id="fleetSearchInput" class="filter-input" placeholder="Search Bus ID, Route, Driver..." style="width: 240px;">
+              
+              <select id="fleetRouteFilter" class="filter-select">
+                <option value="ALL">All Routes</option>
+                <option value="12">Route 12 (Pune Stn - Univ)</option>
+                <option value="12B">Route 12B (SB Rd Bypass)</option>
+                <option value="45">Route 45 (Swargate - Hadapsar)</option>
+                <option value="101">Route 101 (Kothrud - Viman)</option>
+                <option value="8">Route 8 (Katraj - Pune Stn)</option>
+              </select>
+
+              <select id="fleetStatusFilter" class="filter-select">
+                <option value="ALL">All Statuses</option>
+                <option value="On Time">On Time (Green)</option>
+                <option value="Delayed">Delayed (Yellow)</option>
+                <option value="Critical">Critical (Red)</option>
+                <option value="Maintenance">Maintenance (Blue)</option>
+                <option value="Offline">Offline (Grey)</option>
+              </select>
+            </div>
+            <div style="font-size: 0.75rem; color: #64748B;">
+              Live data streamed via MQTT Gateway
+            </div>
+          </div>
+
+          <!-- Data Grid Table -->
+          <div class="table-responsive">
+            <table class="gov-table" id="fleetMasterTable">
+              <thead>
+                <tr>
+                  <th>Bus ID & Reg No</th>
+                  <th>Route & Destination</th>
+                  <th>Status</th>
+                  <th>Speed</th>
+                  <th>ETA</th>
+                  <th>Next Stop / Location</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="fleetTableBody">
+                <!-- Dynamically injected from script.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 3: GIS MAP (SPECIFICATION REQUIREMENT #8)
+           ==================================================================== -->
+      <section class="view-panel" id="view-map">
+        <div class="card" style="margin-bottom: 0;">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Interactive GIS Urban Transportation Map</h2>
+              <div class="card-subtitle">Spatial layer monitoring: Live fleet markers, active routes, passenger congestion & bottlenecks</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <select id="mapFilterRoute" class="filter-select" style="padding: 4px 8px;">
+                <option value="ALL">Highlight All Routes</option>
+                <option value="12">Route 12 (Congested)</option>
+                <option value="12B">Route 12B (AI Fast Bypass)</option>
+                <option value="45">Route 45 (Swargate - Hadapsar)</option>
+                <option value="101">Route 101 (Cross-City)</option>
+                <option value="8">Route 8 (North-South Corridor)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Map Container -->
+          <div class="map-container-wrap" style="height: calc(100vh - 240px); min-height: 520px;">
+            <div id="leafletMap"></div>
+
+            <!-- Floating Layer Control Box -->
+            <div class="map-floating-controls">
+              <div class="map-control-title">GIS Layers Toggle</div>
+              <label class="map-layer-toggle">
+                <span>🚦 Traffic & Routes</span>
+                <input type="checkbox" id="layerToggleTraffic" checked>
+              </label>
+              <label class="map-layer-toggle">
+                <span>🔥 Demand Heatmap</span>
+                <input type="checkbox" id="layerToggleHeatmap" checked>
+              </label>
+              <label class="map-layer-toggle">
+                <span>🚏 Bus Stops</span>
+                <input type="checkbox" id="layerToggleStops" checked>
+              </label>
+              <label class="map-layer-toggle">
+                <span>🏛️ Municipal Depots</span>
+                <input type="checkbox" id="layerToggleDepots" checked>
+              </label>
+            </div>
+
+            <!-- Floating Quick Telemetry Card (Shown when bus marker clicked) -->
+            <div id="mapFloatingBusInfo" style="display: none; position: absolute; bottom: 60px; right: 14px; z-index: 500; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px; padding: 14px; width: 260px; box-shadow: 0 10px 15px rgba(0,0,0,0.15);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong id="mapCardBusId" style="font-size: 1.05rem; color: #0A2540;">BUS-1024</strong>
+                <span id="mapCardStatus" class="badge badge-delayed">Delayed</span>
+              </div>
+              <div id="mapCardRoute" style="font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 4px;">Route 12</div>
+              <div style="font-size: 0.78rem; margin-bottom: 2px;">Speed: <strong id="mapCardSpeed">28 km/h</strong></div>
+              <div style="font-size: 0.78rem; margin-bottom: 2px;">Next Stop: <strong id="mapCardNextStop">Pune Station</strong></div>
+              <div style="font-size: 0.78rem; margin-bottom: 8px;">ETA: <strong id="mapCardEta" style="color: #D97706;">7 minutes</strong></div>
+              <button class="btn btn-sm btn-primary" style="width: 100%;" onclick="openBusModal(document.getElementById('mapCardBusId').textContent)">Full Diagnostics</button>
+            </div>
+
+            <!-- Legend Bar -->
+            <div class="map-legend-bar">
+              <span class="legend-item"><span class="legend-circle" style="background-color: #10B981;"></span> On Time</span>
+              <span class="legend-item"><span class="legend-circle" style="background-color: #F59E0B;"></span> Delayed</span>
+              <span class="legend-item"><span class="legend-circle" style="background-color: #DC2626;"></span> Critical Alert</span>
+              <span class="legend-item"><span class="legend-circle" style="background-color: #2563EB;"></span> Maintenance</span>
+              <span class="legend-item"><span class="legend-circle" style="background-color: #64748B;"></span> Offline</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 4: AI ANALYTICS (SPECIFICATION REQUIREMENT #9 & #10)
+           ==================================================================== -->
+      <section class="view-panel" id="view-analytics">
+        
+        <!-- Header notice -->
+        <div style="margin-bottom: 18px;">
+          <h2 style="font-size: 1.3rem; font-weight: 700; color: #0A2540;">AI Decision Support & Predictive Mobility Intelligence</h2>
+          <div style="font-size: 0.85rem; color: #475569;">
+            Transparent, explainable machine learning models trained on historical AVL data, smart ticketing, and traffic sensors.
+          </div>
+        </div>
+
+        <!-- Four AI Analytical Pillars (Delay, Demand, Traffic, Predictive Maintenance) -->
+        <div class="grid-2-col">
+          
+          <!-- Pillar A: Delay Prediction -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span>⏱️</span>
+                <h3 class="card-title">A. Delay Prediction Engine</h3>
+              </div>
+              <span class="badge badge-delayed">High Risk Detected</span>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: #0A2540;">Corridor: Route 12 (Pune Stn - Univ)</div>
+                  <div style="font-size: 0.78rem; color: #64748B;">Current Delay: <strong style="color: #D97706;">8 min</strong></div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 1.4rem; font-weight: 800; color: #DC2626;">14 min</div>
+                  <div style="font-size: 0.72rem; color: #64748B;">Predicted in 20 min</div>
+                </div>
+              </div>
+              <div style="background: #FEF2F2; border: 1px solid #FECACA; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #991B1B; margin-bottom: 14px;">
+                <strong>Reason:</strong> High traffic bottleneck detected at Sancheti Chowk due to lane narrowing and vehicle accumulation.
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="executeAiRecommendation('rerouteBypass')">Activate Route 12B Dynamic Bypass</button>
+            </div>
+          </div>
+
+          <!-- Pillar B: Passenger Demand Prediction -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span>👥</span>
+                <h3 class="card-title">B. Passenger Demand Forecasting</h3>
+              </div>
+              <span class="badge badge-critical">Capacity Deficit</span>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: #0A2540;">Zone: University Road (SPPU)</div>
+                  <div style="font-size: 0.78rem; color: #64748B;">Current Demand: <strong style="color: #D97706;">HIGH</strong></div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 1.4rem; font-weight: 800; color: #DC2626;">VERY HIGH</div>
+                  <div style="font-size: 0.72rem; color: #64748B;">Projected: 850 passengers</div>
+                </div>
+              </div>
+              <div style="background: #EFF6FF; border: 1px solid #BFDBFE; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #1E40AF; margin-bottom: 14px;">
+                <strong>Fleet Allocation Delta:</strong> Currently 4 buses active on sector. AI Recommended: <strong>6 buses</strong> (Deficit of 2 buses).
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="executeAiRecommendation('deployBuses')">Deploy 2 Standby Buses</button>
+            </div>
+          </div>
+
+          <!-- Pillar C: Traffic Prediction -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span>🚦</span>
+                <h3 class="card-title">C. Spatial Traffic Congestion Prediction</h3>
+              </div>
+              <span class="badge badge-delayed">Peak Approaching</span>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: #0A2540;">Location: Main Junction (Sancheti Chowk)</div>
+                  <div style="font-size: 0.78rem; color: #64748B;">Current Traffic: <strong style="color: #059669;">Medium</strong></div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 1.4rem; font-weight: 800; color: #D97706;">High Congestion</div>
+                  <div style="font-size: 0.72rem; color: #64748B;">Expected at: 17:30 - 18:15 IST</div>
+                </div>
+              </div>
+              <div style="background: #FFFBEB; border: 1px solid #FDE68A; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #92400E; margin-bottom: 14px;">
+                <strong>Corridor Speed Alert:</strong> Transit vehicle speed predicted to fall to 12 km/h during the evening commute surge.
+              </div>
+              <button class="btn btn-secondary btn-sm" data-action-view="traffic">View Route Rerouting Panel</button>
+            </div>
+          </div>
+
+          <!-- Pillar D: Predictive Maintenance -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span>🔧</span>
+                <h3 class="card-title">D. Fleet Predictive Maintenance</h3>
+              </div>
+              <span class="badge badge-maintenance">Proactive Action</span>
+            </div>
+            <div class="card-body">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                <div>
+                  <div style="font-size: 0.85rem; font-weight: 700; color: #0A2540;">Target Asset: Bus 1024 (MH-12-RN-4024)</div>
+                  <div style="font-size: 0.78rem; color: #64748B;">Sub-system: Regenerative Brake Pad & Inverter</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 1.4rem; font-weight: 800; color: #D97706;">Medium Risk</div>
+                  <div style="font-size: 0.72rem; color: #64748B;">Sensor Score: 68/100</div>
+                </div>
+              </div>
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 12px; border-radius: 6px; font-size: 0.8rem; color: #334155; margin-bottom: 14px;">
+                <strong>Recommended Action:</strong> "Schedule preventative overnight inspection at Shivaji Nagar Central Depot."
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="showToast('✅ Inspection work-order #WO-5401 issued to Depot 1 workshop.')">Schedule Maintenance Inspection</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- EXPLAINABLE AI DEEP DIVE -->
+        <div class="ai-xai-card">
+          <div class="ai-xai-header">
+            <div>
+              <span class="ai-badge">AUDITABLE AI WORKFLOW</span>
+              <h3 class="ai-recommendation-title">Why did AI make this decision?</h3>
+              <div style="font-size: 0.8rem; color: #475569;">
+                Government transparency mandate: AI decisions must be verifiable and auditable before execution.
+              </div>
+            </div>
+          </div>
+
+          <div class="xai-steps-grid">
+            <div class="xai-step-item">
+              <div class="xai-step-num">1</div>
+              <div class="xai-step-title">1. Passenger Demand Influx</div>
+              <div class="xai-step-desc">Ticketing taps reveal 850 commuters waiting across 4 stops on Route 12.</div>
+            </div>
+            <div class="xai-step-item">
+              <div class="xai-step-num">2</div>
+              <div class="xai-step-title">2. Overcrowding Recorded</div>
+              <div class="xai-step-desc">Onboard axle weight sensors register 91% occupancy across operational buses.</div>
+            </div>
+            <div class="xai-step-item">
+              <div class="xai-step-num">3</div>
+              <div class="xai-step-title">3. Traffic Bottleneck Imminent</div>
+              <div class="xai-step-desc">Congestion at Sancheti Chowk will delay active buses by 14 minutes.</div>
+            </div>
+            <div class="xai-step-item">
+              <div class="xai-step-num">4</div>
+              <div class="xai-step-title">4. Proximity Asset Match</div>
+              <div class="xai-step-desc">Shivaji Nagar Depot has 2 charged standby buses ready for immediate line insertion.</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           VIEW 5: DEMAND PREDICTION (SPECIFICATION REQUIREMENT #11)
+           ==================================================================== -->
+      <section class="view-panel" id="view-demand">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Passenger Demand & Transit Capacity Balancing</h2>
+              <div class="card-subtitle">AI-driven crowd forecasting helps transport planners prevent station overcrowding</div>
+            </div>
+            <div>
+              <span class="badge badge-on-time">Forecasting Horizon: 4 Hours</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- University Road Focus Box -->
+            <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 5px solid #1D4ED8; border-radius: 6px; padding: 18px; margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <h3 style="font-size: 1.15rem; font-weight: 700; color: #0A2540;">Sector Highlight: University Road (SPPU Corridor)</h3>
+                  <div style="font-size: 0.85rem; color: #475569; margin-top: 4px;">
+                    Demand Level: <strong style="color: #DC2626;">VERY HIGH</strong> | Predicted Passengers: <strong>850</strong>
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 0.85rem; color: #475569;">Active Buses: <strong>4</strong> | Recommended: <strong>6</strong></div>
+                  <button class="btn btn-primary btn-sm" style="margin-top: 6px;" onclick="executeAiRecommendation('deployBuses')">Deploy 2 Additional Buses</button>
+                </div>
+              </div>
+              <div style="font-size: 0.8rem; color: #1E40AF; margin-top: 10px; font-weight: 600;">
+                AI Recommendation: “Deploy 2 additional buses during peak hours (17:30 - 19:45 IST) to maintain 6-minute frequency.”
+              </div>
+            </div>
+
+            <!-- Demand Graph -->
+            <div style="height: 320px; width: 100%; margin-bottom: 24px;">
+              <canvas id="demandPredictionChart"></canvas>
+            </div>
+
+            <!-- Corridor Demand Table -->
+            <h3 style="font-size: 1rem; font-weight: 700; color: #0A2540; margin-bottom: 12px;">High & Low Demand Transit Sectors</h3>
+            <div class="table-responsive">
+              <table class="gov-table">
+                <thead>
+                  <tr>
+                    <th>Transit Sector / Area</th>
+                    <th>Current Demand</th>
+                    <th>Projected Passengers</th>
+                    <th>Current Buses</th>
+                    <th>Recommended Buses</th>
+                    <th>Action Required</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>University Road (SPPU)</strong></td>
+                    <td><span class="badge badge-critical">VERY HIGH</span></td>
+                    <td>850 / hr</td>
+                    <td>4</td>
+                    <td><strong>6 (+2)</strong></td>
+                    <td><button class="btn btn-sm btn-primary" onclick="executeAiRecommendation('deployBuses')">Deploy 2 Buses</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Swargate Central Hub</strong></td>
+                    <td><span class="badge badge-delayed">HIGH</span></td>
+                    <td>680 / hr</td>
+                    <td>6</td>
+                    <td><strong>7 (+1)</strong></td>
+                    <td><button class="btn btn-sm btn-secondary" onclick="showToast('Dispatched 1 bus from Swargate Depot')">Add 1 Feeder</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>FC Road & Deccan</strong></td>
+                    <td><span class="badge badge-on-time">MEDIUM</span></td>
+                    <td>420 / hr</td>
+                    <td>5</td>
+                    <td><strong>5 (Balanced)</strong></td>
+                    <td><span style="color: #059669; font-size: 0.8rem; font-weight: 600;">Sufficient</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Katraj Snake Park</strong></td>
+                    <td><span class="badge badge-offline">LOW</span></td>
+                    <td>210 / hr</td>
+                    <td>4</td>
+                    <td><strong>3 (-1)</strong></td>
+                    <td><button class="btn btn-sm btn-secondary" onclick="showToast('Reallocated 1 bus to Swargate corridor')">Reallocate 1 Bus</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 6: TRAFFIC & ROUTE MANAGEMENT (SPECIFICATION REQUIREMENT #12)
+           ==================================================================== -->
+      <section class="view-panel" id="view-traffic">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Traffic Congestion & Intelligent Route Re-Routing</h2>
+              <div class="card-subtitle">AI continuously evaluates alternative corridors to minimize commuter delays</div>
+            </div>
+            <button class="btn btn-primary btn-sm" data-action-view="map">View Corridors on GIS Map</button>
+          </div>
+
+          <div class="card-body">
+            
+            <!-- Comparison Box: Route 12 vs 12B -->
+            <div class="grid-2-col" style="margin-bottom: 24px;">
+              
+              <!-- Current Route 12 -->
+              <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <span class="badge badge-critical">Current Active Route</span>
+                  <span style="font-size: 0.8rem; font-weight: 700; color: #DC2626;">Heavy Congestion</span>
+                </div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #991B1B; margin-bottom: 6px;">Route 12: via Sancheti Chowk</h3>
+                <div style="font-size: 0.82rem; color: #7F1D1D; margin-bottom: 12px;">
+                  Current Route Delay: <strong>14 minutes</strong><br>
+                  Average Transit Speed: <strong>11 km/h</strong><br>
+                  Bottleneck: Sancheti flyover lane restriction
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="locateBusOnMap('BUS-1024')">View Bottleneck on Map</button>
+              </div>
+
+              <!-- AI Alternative Route 12B -->
+              <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <span class="badge badge-on-time">AI Recommended Bypass</span>
+                  <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">Saves 10 Minutes</span>
+                </div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #065F46; margin-bottom: 6px;">Alternative Route 12B: via Senapati Bapat Road</h3>
+                <div style="font-size: 0.82rem; color: #065F46; margin-bottom: 12px;">
+                  Expected Route Delay: <strong>4 minutes</strong><br>
+                  Average Transit Speed: <strong>32 km/h</strong><br>
+                  AI Recommendation: “Divert upcoming Route 12 buses via SB Road.”
+                </div>
+                <button class="btn btn-success btn-sm" id="btnApplyReroute" onclick="executeAiRecommendation('rerouteBypass')">
+                  ✓ Apply Alternative Route B
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Route Status Summary Table -->
+            <h3 style="font-size: 1rem; font-weight: 700; color: #0A2540; margin-bottom: 12px;">Key Urban Arterials Status</h3>
+            <div class="table-responsive">
+              <table class="gov-table">
+                <thead>
+                  <tr>
+                    <th>Route ID</th>
+                    <th>Corridor Name</th>
+                    <th>Congestion Index</th>
+                    <th>Avg Speed</th>
+                    <th>Delay</th>
+                    <th>AI Dynamic Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Route 12</strong></td>
+                    <td>Pune Stn ⇄ University Road via Sancheti</td>
+                    <td><span class="badge badge-critical">84% - Heavy</span></td>
+                    <td>14 km/h</td>
+                    <td>+14 min</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="executeAiRecommendation('rerouteBypass')">Reroute via 12B</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Route 12B</strong></td>
+                    <td>Pune Stn ⇄ University Road via SB Road</td>
+                    <td><span class="badge badge-on-time">28% - Free Flow</span></td>
+                    <td>38 km/h</td>
+                    <td>+2 min</td>
+                    <td><span style="color: #059669; font-weight: 600; font-size: 0.8rem;">Optimal Path</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Route 45</strong></td>
+                    <td>Swargate ⇄ Hadapsar Gadital</td>
+                    <td><span class="badge badge-delayed">62% - Moderate</span></td>
+                    <td>22 km/h</td>
+                    <td>+7 min</td>
+                    <td><button class="btn btn-sm btn-secondary" onclick="showToast('Signal priority request sent to Hadapsar Traffic Police')">Signal Priority Sync</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Route 101</strong></td>
+                    <td>Kothrud Stand ⇄ Viman Nagar</td>
+                    <td><span class="badge badge-on-time">35% - Normal</span></td>
+                    <td>34 km/h</td>
+                    <td>+3 min</td>
+                    <td><span style="color: #059669; font-weight: 600; font-size: 0.8rem;">Operating Normally</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 7: ALERTS & INCIDENTS (SPECIFICATION REQUIREMENT #13)
+           ==================================================================== -->
+      <section class="view-panel" id="view-alerts">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Alerts & Incident Control Desk</h2>
+              <div class="card-subtitle">Operational safety triggers, route deviations, equipment anomalies and traffic warnings</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm alert-filter-btn btn-primary" data-alert-filter="ALL">All Alerts</button>
+              <button class="btn btn-secondary btn-sm alert-filter-btn" data-alert-filter="critical">🔴 Critical</button>
+              <button class="btn btn-secondary btn-sm alert-filter-btn" data-alert-filter="warning">🟡 Warnings</button>
+              <button class="btn btn-secondary btn-sm alert-filter-btn" data-alert-filter="info">🔵 Info</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div id="alertsFeedContainer">
+              <!-- Dynamically populated from script.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 8: CITIZEN / PASSENGER PORTAL (SPECIFICATION REQUIREMENT #14)
+           ==================================================================== -->
+      <section class="view-panel" id="view-passenger">
+        
+        <!-- Public Heading -->
+        <div class="citizen-search-box">
+          <span style="background: #EFF6FF; color: #1D4ED8; font-weight: 700; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">CITIZEN PUBLIC SERVICES</span>
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: #0A2540; margin-top: 6px;">Find Your Next Bus & Real-Time Arrival</h2>
+          <p style="font-size: 0.85rem; color: #475569; margin-top: 4px;">Search live schedules, check service disruptions and submit commuter grievances directly to transport authorities.</p>
+
+          <div class="citizen-search-input-group">
+            <input type="text" id="citizenSearchInput" class="citizen-input" placeholder="Enter Bus Number (e.g. 1024) or Route (e.g. 12, 45, 101)..." aria-label="Search Bus or Route">
+            <button class="btn btn-primary" id="citizenSearchBtn" style="padding: 12px 24px; font-size: 0.95rem;">Search ETA</button>
+          </div>
+
+          <div id="citizenSearchResults" style="margin-top: 16px;"></div>
+        </div>
+
+        <div class="grid-2-col">
+          
+          <!-- Live Service Advisories -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title" style="font-size: 0.95rem;">📢 Official Service Advisories</h3>
+            </div>
+            <div class="card-body">
+              <div style="border-left: 3px solid #D97706; background: #FFFDF7; padding: 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.82rem;">
+                <strong>Route 12 Congestion Advisory:</strong> Route 12 is delayed by 10-15 minutes near Sancheti Chowk. Commuters are advised to board <strong>Route 12B</strong> for a 10 min faster journey.
+              </div>
+              <div style="border-left: 3px solid #059669; background: #F8FAF9; padding: 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.82rem;">
+                <strong>Green Transit Initiative:</strong> 100% of Route 12 & 12B buses operate on zero-emission electric battery technology with USB phone chargers onboard.
+              </div>
+              <div style="border-left: 3px solid #2563EB; background: #F8FBFF; padding: 12px; border-radius: 4px; font-size: 0.82rem;">
+                <strong>Student & Senior Citizen Concession:</strong> Digital card renewal counters are operational at Shivaji Nagar Terminus & Swargate Hub.
+              </div>
+            </div>
+          </div>
+
+          <!-- Citizen Grievance & Feedback Form -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title" style="font-size: 0.95rem;">📝 Submit Feedback / Grievance</h3>
+            </div>
+            <div class="card-body">
+              <form id="citizenFeedbackForm">
+                <div style="margin-bottom: 12px;">
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px;">Feedback Category</label>
+                  <select class="filter-select" style="width: 100%;" required>
+                    <option value="crowding">Bus Overcrowding / Delay</option>
+                    <option value="driver">Driver / Conductor Behaviour</option>
+                    <option value="cleanliness">Vehicle Cleanliness</option>
+                    <option value="suggestion">Route Extension Suggestion</option>
+                  </select>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px;">Bus Number / Route</label>
+                  <input type="text" class="filter-input" style="width: 100%;" placeholder="e.g. Bus 1024 or Route 12" required>
+                </div>
+                <div style="margin-bottom: 12px;">
+                  <label style="display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 4px;">Your Comments</label>
+                  <textarea class="filter-input" style="width: 100%; height: 75px;" placeholder="Describe your experience or suggestion..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Official Grievance</button>
+              </form>
+              <div id="citizenFeedbackResponse" style="display: none; margin-top: 12px;"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ====================================================================
+           VIEW 9: PERFORMANCE ANALYTICS (SPECIFICATION REQUIREMENT #15)
+           ==================================================================== -->
+      <section class="view-panel" id="view-reports">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Municipal Fleet Performance & Operational Audits</h2>
+              <div class="card-subtitle">Official transit metrics, reliability index, fuel conservation and schedule adherence</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="exportFleetCSV()">Export CSV</button>
+              <button class="btn btn-primary btn-sm" onclick="viewReportPreview('Comprehensive Fleet Performance Audit')">Generate PDF Report</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            
+            <!-- Filter by Period -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+              <button class="btn btn-sm btn-primary">Today (07 Sep 2026)</button>
+              <button class="btn btn-sm btn-secondary">This Week</button>
+              <button class="btn btn-sm btn-secondary">This Month</button>
+              <button class="btn btn-sm btn-secondary">Financial Year 2026-27</button>
+            </div>
+
+            <!-- Performance Metrics Grid -->
+            <div class="kpi-grid">
+              <div class="kpi-card border-accent-blue">
+                <div class="kpi-label">Trips Completed Today</div>
+                <div class="kpi-value" style="font-size: 1.8rem;">4,820</div>
+                <div class="kpi-footer"><span class="kpi-trend positive">↑ 98.4% of scheduled</span></div>
+              </div>
+
+              <div class="kpi-card border-accent-green">
+                <div class="kpi-label">Average Fleet Speed</div>
+                <div class="kpi-value" style="font-size: 1.8rem;">31.4 km/h</div>
+                <div class="kpi-footer"><span class="kpi-trend positive">↑ +2.1 km/h (Bus lane)</span></div>
+              </div>
+
+              <div class="kpi-card border-accent-green">
+                <div class="kpi-label">Fuel / Energy Conserved</div>
+                <div class="kpi-value" style="font-size: 1.8rem;">4,210 L</div>
+                <div class="kpi-footer"><span class="kpi-trend positive">Saved via AI Routing</span></div>
+              </div>
+
+              <div class="kpi-card border-accent-blue">
+                <div class="kpi-label">CO2 Emissions Avoided</div>
+                <div class="kpi-value" style="font-size: 1.8rem;">11.45 Tons</div>
+                <div class="kpi-footer"><span class="kpi-trend positive">Green Fleet Milestone</span></div>
+              </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid-2-col">
+              <div class="card" style="margin-bottom: 0;">
+                <div class="card-header"><h3 class="card-title" style="font-size: 0.95rem;">Fleet Operational Status Breakdown</h3></div>
+                <div class="card-body" style="height: 280px; display: flex; align-items: center; justify-content: center;">
+                  <canvas id="fleetPerformanceChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Official Reports Catalogue (Requirement #16) -->
+              <div class="card" style="margin-bottom: 0;">
+                <div class="card-header"><h3 class="card-title" style="font-size: 0.95rem;">Official Audit Reports</h3></div>
+                <div class="card-body" style="padding: 10px 16px;">
+                  
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0;">
+                    <div>
+                      <strong style="font-size: 0.85rem; color: #0A2540;">1. Daily Fleet Operations Report</strong>
+                      <div style="font-size: 0.72rem; color: #64748B;">Detailed logs of all 1,250 registered buses</div>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                      <button class="btn btn-sm btn-secondary" onclick="viewReportPreview('Daily Fleet Operations Report')">View</button>
+                      <button class="btn btn-sm btn-primary" onclick="exportFleetCSV()">CSV</button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0;">
+                    <div>
+                      <strong style="font-size: 0.85rem; color: #0A2540;">2. Route Congestion & Delay Audit</strong>
+                      <div style="font-size: 0.72rem; color: #64748B;">Bottleneck analysis for Smart City engineers</div>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                      <button class="btn btn-sm btn-secondary" onclick="viewReportPreview('Route Congestion & Delay Audit')">View</button>
+                      <button class="btn btn-sm btn-primary" onclick="exportFleetCSV()">CSV</button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0;">
+                    <div>
+                      <strong style="font-size: 0.85rem; color: #0A2540;">3. Passenger Demand & Surge Report</strong>
+                      <div style="font-size: 0.72rem; color: #64748B;">Ticketing demand patterns for frequency tuning</div>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                      <button class="btn btn-sm btn-secondary" onclick="viewReportPreview('Passenger Demand & Surge Report')">View</button>
+                      <button class="btn btn-sm btn-primary" onclick="exportFleetCSV()">CSV</button>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                    <div>
+                      <strong style="font-size: 0.85rem; color: #0A2540;">4. AI Dispatch Decision Audit Log</strong>
+                      <div style="font-size: 0.72rem; color: #64748B;">Algorithmic recommendations and officer approvals</div>
+                    </div>
+                    <div style="display: flex; gap: 4px;">
+                      <button class="btn btn-sm btn-secondary" onclick="viewReportPreview('AI Dispatch Decision Audit Log')">View</button>
+                      <button class="btn btn-sm btn-primary" onclick="exportFleetCSV()">CSV</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 10: DATA & APIS STATUS (SPECIFICATION REQUIREMENT #17)
+           ==================================================================== -->
+      <section class="view-panel" id="view-data-api">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Telemetry Pipelines & Open Data APIs</h2>
+              <div class="card-subtitle">Real-time status of spatial feeds, AI neural models, and GTFS-Realtime transit microservices</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="showToast('✅ All API health check endpoints responding normally (HTTP 200 OK)')">Ping Health Checks</button>
+          </div>
+
+          <div class="card-body">
+            <div id="apiStatusContainer">
+              <!-- Dynamically populated from script.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 11: ADMINISTRATION (SPECIFICATION REQUIREMENT #18)
+           ==================================================================== -->
+      <section class="view-panel" id="view-admin">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Administration & Control Room Security</h2>
+              <div class="card-subtitle">Role-Based Access Control (RBAC), security audit logs and system configuration</div>
+            </div>
+            <span class="badge badge-on-time">Security Tier: ISO 27001 Certified</span>
+          </div>
+
+          <div class="card-body">
+            
+            <h3 style="font-size: 1rem; font-weight: 700; color: #0A2540; margin-bottom: 12px;">Authorized Control Officers & Roles</h3>
+            <div class="table-responsive" style="margin-bottom: 24px;">
+              <table class="gov-table">
+                <thead>
+                  <tr>
+                    <th>Officer Name</th>
+                    <th>Government ID</th>
+                    <th>Role Designation</th>
+                    <th>Sector / Station Access</th>
+                    <th>Last Active</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Shri Rajesh Sharma</strong></td>
+                    <td>MH-MOHUA-8021</td>
+                    <td><span class="badge badge-on-time">Administrator</span></td>
+                    <td>All Municipal Zones</td>
+                    <td>Active Now</td>
+                    <td><span style="color: #059669; font-weight: 700;">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Dr. Anita Deshmukh</strong></td>
+                    <td>MH-PMPML-4412</td>
+                    <td><span class="badge badge-on-time">Transport Officer</span></td>
+                    <td>Route 12, 12B, 45</td>
+                    <td>14 mins ago</td>
+                    <td><span style="color: #059669; font-weight: 700;">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Shri Suresh Kadam</strong></td>
+                    <td>MH-PMPML-9104</td>
+                    <td><span class="badge badge-delayed">Fleet Manager</span></td>
+                    <td>Shivaji Nagar Central Depot</td>
+                    <td>35 mins ago</td>
+                    <td><span style="color: #059669; font-weight: 700;">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Control Room Console #04</strong></td>
+                    <td>CR-PUNE-SYS-04</td>
+                    <td><span class="badge badge-on-time">Control Room Operator</span></td>
+                    <td>GIS Live Telemetry Feed</td>
+                    <td>Streaming</td>
+                    <td><span style="color: #059669; font-weight: 700;">Active</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>SIH Evaluation Observer</strong></td>
+                    <td>SIH-2026-EVAL-09</td>
+                    <td><span class="badge badge-offline">Viewer / Auditor</span></td>
+                    <td>Read-Only Intelligence Portal</td>
+                    <td>Active Session</td>
+                    <td><span style="color: #2563EB; font-weight: 700;">Auditing</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Security Audit Trail -->
+            <h3 style="font-size: 1rem; font-weight: 700; color: #0A2540; margin-bottom: 12px;">Recent Audit & Dispatch Logs</h3>
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: 14px; font-size: 0.8rem; font-family: monospace; color: #334155; line-height: 1.6;">
+              [17:28:12 IST] Officer R. Sharma approved AI recommendation #REC-102: Dispatch 2 standby units from Shivaji Nagar Depot.<br>
+              [17:18:45 IST] System flagged Route 101 Bus 1102 for Route Deviation & Engine Temp Anomaly.<br>
+              [17:05:22 IST] AI Rerouting model STGNN-v3 generated Route 12B Bypass alert (Confidence: 94.2%).<br>
+              [16:42:01 IST] GTFS-RT public commuter feed synced with 1,087 active bus positions.
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 4. MODAL: DETAILED VEHICLE TELEMETRY -->
+  <div class="modal-overlay" id="busDetailModal" role="dialog" aria-modal="true" aria-labelledby="modalBusTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalBusTitle">Bus Telemetry Profile</h3>
+        <button class="modal-close-btn" onclick="closeBusModal()" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px;">
+          <div>
+            <div style="font-size: 0.8rem; color: #64748B;">Registration Plate</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #0A2540;" id="modalBusReg">MH-12-RN-4024</div>
+          </div>
+          <span id="modalBusStatus" class="badge badge-on-time">On Time</span>
+        </div>
+
+        <div class="grid-2-col" style="gap: 12px; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 0.75rem; color: #64748B;">Assigned Route</div>
+            <div style="font-weight: 600; font-size: 0.88rem;" id="modalBusRoute">Route 12</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748B;">Live Speed</div>
+            <div style="font-weight: 600; font-size: 0.88rem;" id="modalBusSpeed">35 km/h</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748B;">Next Scheduled Stop</div>
+            <div style="font-weight: 600; font-size: 0.88rem;" id="modalBusNextStop">FC Road</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748B;">Estimated Arrival (ETA)</div>
+            <div style="font-weight: 600; font-size: 0.88rem;" id="modalBusEta">3 min</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748B;">Assigned Driver</div>
+            <div style="font-weight: 600; font-size: 0.88rem;" id="modalBusDriver">Ramesh Jadhav</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: #64748B;">Conductor</div>
+            <div style="font-weight: 600; font-size: 0.88rem;" id="modalBusConductor">Anil More</div>
+          </div>
+        </div>
+
+        <!-- Battery / Fuel Bar -->
+        <div style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px;">
+            <span>Battery State of Charge (SoC) / Fuel</span>
+            <strong id="modalBusBattery">68%</strong>
+          </div>
+          <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+            <div id="modalBatteryBar" style="width: 68%; height: 100%; background: #10B981; border-radius: 4px;"></div>
+          </div>
+        </div>
+
+        <!-- Passenger Load Bar -->
+        <div style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px;">
+            <span>Passenger Occupancy Capacity</span>
+            <strong id="modalBusOccupancy">88%</strong>
+          </div>
+          <div style="width: 100%; height: 8px; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+            <div id="modalLoadBar" style="width: 88%; height: 100%; background: #F59E0B; border-radius: 4px;"></div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.75rem; color: #64748B; background: #F8FAFC; padding: 10px; border-radius: 4px; border: 1px solid #E2E8F0;">
+          Vehicle Propulsion: <strong id="modalBusType">Electric AC (Olectra)</strong> | Onboard CAN-bus Gateway: Online | Emergency SOS: Functional
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeBusModal()">Close</button>
+        <button class="btn btn-primary" onclick="closeBusModal(); locateBusOnMap(document.getElementById('modalBusTitle').textContent.split(' ')[0])">View on GIS Map</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODAL: REPORT PRINT & VIEW PREVIEW -->
+  <div class="modal-overlay" id="reportModal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="reportModalTitle">Official Government Report</h3>
+        <button class="modal-close-btn" onclick="closeReportModal()" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; border-bottom: 2px solid #0A2540; padding-bottom: 12px; margin-bottom: 16px;">
+          <img src="assets/emblem.svg" alt="Emblem" style="width: 50px; height: 50px; margin-bottom: 6px;">
+          <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #475569;">Government of India • Ministry of Housing & Urban Affairs</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #0A2540;">Urban Transport Intelligence System (UTIS)</div>
+          <div style="font-size: 0.75rem; color: #64748B;" id="reportModalDate">Generated: 07 September 2026</div>
+        </div>
+
+        <div style="font-size: 0.85rem; color: #334155; line-height: 1.6;">
+          <p><strong>Executive Summary:</strong></p>
+          <p>The municipal public transit network deployed <strong>1,087 active vehicles</strong> across 5 high-density corridors in the Pune Metropolitan Region. Overall schedule adherence reached <strong>82% on-time performance</strong> with an average corridor speed of 31.4 km/h.</p>
+          
+          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 12px; border-radius: 4px; margin: 14px 0;">
+            <strong>Key Metrics Recorded:</strong>
+            <ul style="margin-left: 20px; margin-top: 6px;">
+              <li>Total Commuter Trips Completed: 4,820 trips</li>
+              <li>Peak Passenger Congestion: University Road (850 pax/hr)</li>
+              <li>AI Rerouting Intervention: Route 12B Bypass saved 10.4 minutes average travel time</li>
+              <li>Estimated Fuel Conserved: 4,210 Liters equivalent (11.45 metric tons CO2 avoided)</li>
+            </ul>
+          </div>
+          <p style="font-size: 0.75rem; color: #64748B;">This document is a digitally generated municipal performance summary produced under the Smart India Hackathon (SIH) prototype mobility intelligence framework.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeReportModal()">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. GOVERNMENT FOOTER (SPECIFICATION REQUIREMENT #23) -->
+  <footer class="gov-footer" role="contentinfo">
+    <div class="footer-top">
+      <div>
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 0.95rem;">Government of India • भारत सरकार</div>
+        <div style="font-size: 0.78rem; color: #CBD5E1;">Urban Transport Intelligence System (UTIS)</div>
+        <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 4px;">Smart India Hackathon (SIH) Project • AI-Powered Mobile Urban Intelligence Platform</div>
+      </div>
+      <div class="footer-links">
+        <a href="#dashboard">About UTIS</a>
+        <a href="#passenger">Citizen Helpdesk</a>
+        <a href="#reports">Privacy Policy</a>
+        <a href="#admin">Terms of Service</a>
+        <a href="#data-api">Open APIs</a>
+        <a href="#alerts">Accessibility</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>
+        © 2026 Ministry of Housing and Urban Affairs, Government of India. All rights reserved.
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span>Last Updated: <strong>07 September 2026</strong></span>
+        <span class="footer-refresh-pill">Data refresh: Every 30 seconds</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- External Libraries (CDN) -->
+  <!-- Leaflet JS for GIS Map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Chart.js for Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Scripts -->
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

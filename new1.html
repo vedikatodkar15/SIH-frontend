@@ -1,0 +1,3073 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urban Transport Intelligence System (UTIS) — SIH 2026 Government Platform</title>
+
+  <!-- SEO & Metadata -->
+  <meta name="description"
+    content="AI-Powered Mobile Urban Intelligence Platform Using Public Transport Fleet - Smart India Hackathon Government Prototype">
+  <meta name="author" content="Ministry of Housing & Urban Affairs - Government of India">
+  <meta name="theme-color" content="#123B63">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+
+  <!-- Leaflet CSS for GIS Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Leaflet JS CDN -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS (NEXTADMIN AESTHETICS + GOV IDENTITY)
+       ========================================================================== */
+    :root {
+      /* Brand & Government Palette */
+      --gov-primary: #123B63;
+      --gov-primary-hover: #0E2C4A;
+      --gov-secondary: #1F5A8A;
+      --gov-accent: #2563EB;
+      --gov-accent-soft: #EFF6FF;
+      --gov-navy-dark: #0A192F;
+
+      /* Surfaces & Canvas (NextAdmin crisp light) */
+      --bg-app: #F4F6F8;
+      --bg-surface: #FFFFFF;
+      --bg-surface-subtle: #F8FAFC;
+      --bg-hover: #F1F5F9;
+
+      /* Borders & Shadows */
+      --border-color: #E2E8F0;
+      --border-subtle: #EDF2F7;
+      --border-focus: #3B82F6;
+      --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+      /* Typography */
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      --text-light: #94A3B8;
+      --text-white: #FFFFFF;
+
+      /* Status Colors */
+      --status-success: #10B981;
+      --status-success-bg: #ECFDF5;
+      --status-warning: #F59E0B;
+      --status-warning-bg: #FFFBEB;
+      --status-critical: #EF4444;
+      --status-critical-bg: #FEF2F2;
+      --status-purple: #8B5CF6;
+      --status-purple-bg: #F5F3FF;
+      --status-blue: #3B82F6;
+      --status-blue-bg: #EFF6FF;
+
+      /* Radii */
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-xl: 18px;
+      --radius-full: 9999px;
+
+      /* Font */
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --sidebar-width: 260px;
+      --sidebar-collapsed-width: 76px;
+      --header-height: 72px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Dark Mode Tokens */
+    body.dark-mode {
+      --bg-app: #0F172A;
+      --bg-surface: #1E293B;
+      --bg-surface-subtle: #182234;
+      --bg-hover: #334155;
+      --border-color: #334155;
+      --border-subtle: #293548;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-light: #64748B;
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Reset & Base */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    /* ==========================================================================
+       2. APP LAYOUT STRUCTURE
+       ========================================================================== */
+    .app-container {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* SIDEBAR */
+    .app-sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar-brand {
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .brand-logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--gov-primary), var(--gov-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-white);
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(18, 59, 99, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+      color: var(--gov-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    body.dark-mode .brand-name {
+      color: #60A5FA;
+    }
+
+    .brand-tag {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      background-color: #EFF6FF;
+      color: #1D4ED8;
+      border-radius: var(--radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .sidebar-nav-wrap {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-light);
+      padding: 0 12px 6px;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+    }
+
+    .nav-item-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .nav-item-btn.active {
+      background-color: #EEF2FF;
+      color: #1E40AF;
+      font-weight: 600;
+    }
+
+    body.dark-mode .nav-item-btn.active {
+      background-color: #1E3A8A;
+      color: #BFDBFE;
+    }
+
+    .nav-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-item-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      stroke-width: 2;
+    }
+
+    .nav-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background-color: var(--bg-hover);
+      color: var(--text-muted);
+    }
+
+    .nav-badge.badge-alert {
+      background-color: #FEE2E2;
+      color: #B91C1C;
+    }
+
+    .nav-badge.badge-green {
+      background-color: #DCFCE7;
+      color: #15803D;
+    }
+
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-collapse-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .sidebar-collapse-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    /* MAIN CONTENT AREA */
+    .app-main {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: var(--transition);
+      background-color: var(--bg-app);
+      width: calc(100% - var(--sidebar-width));
+    }
+
+    .app-main.expanded {
+      margin-left: var(--sidebar-collapsed-width);
+      width: calc(100% - var(--sidebar-collapsed-width));
+    }
+
+    /* TOP HEADER (NextAdmin style) */
+    .app-header {
+      height: var(--header-height);
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .header-left-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .page-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .header-right-col {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Search Pill */
+    .header-search-pill {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-search-pill input {
+      height: 38px;
+      width: 260px;
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 0 16px 0 38px;
+      font-size: 13px;
+      color: var(--text-main);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .header-search-pill input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      width: 300px;
+    }
+
+    .header-search-pill svg {
+      position: absolute;
+      left: 14px;
+      width: 15px;
+      height: 15px;
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    /* Action Icon Pill */
+    .action-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .action-icon-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 7px;
+      height: 7px;
+      background-color: var(--status-critical);
+      border-radius: var(--radius-full);
+      box-shadow: 0 0 0 2px var(--bg-surface);
+    }
+
+    .clock-pill {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gov-primary);
+      background-color: var(--gov-accent-soft);
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    body.dark-mode .clock-pill {
+      background-color: #1E3A8A;
+      color: #93C5FD;
+    }
+
+    /* Officer Profile Pill */
+    .officer-profile-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 12px 4px 4px;
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .officer-profile-pill:hover {
+      border-color: var(--text-light);
+    }
+
+    .officer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, #1F5A8A, #123B63);
+      color: var(--text-white);
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .officer-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .officer-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .officer-role {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* SIH Banner Indicator */
+    .sih-indicator-bar {
+      background: linear-gradient(90deg, #123B63 0%, #1F5A8A 50%, #123B63 100%);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      letter-spacing: 0.02em;
+    }
+
+    .sih-pill-badge {
+      background: #F59E0B;
+      color: #000;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+
+    /* ==========================================================================
+       3. PAGE VIEW CONTENT
+       ========================================================================== */
+    .page-content-wrapper {
+      padding: 24px 28px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex: 1;
+    }
+
+    /* Filter Bar */
+    .filter-bar-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 14px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .filter-groups {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .filter-select {
+      height: 34px;
+      padding: 0 28px 0 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface-subtle);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      transition: var(--transition);
+    }
+
+    .filter-select:focus {
+      border-color: var(--border-focus);
+    }
+
+    .filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background-color: var(--gov-primary);
+      color: var(--text-white);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--gov-primary-hover);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--bg-hover);
+    }
+
+    /* ==========================================================================
+       4. NEXTADMIN 4 KPI CARDS ROW (Exact visual match)
+       ========================================================================== */
+    .kpi-grid-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .nextadmin-kpi-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .nextadmin-kpi-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: #CBD5E1;
+    }
+
+    .kpi-circle-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-circle-icon.icon-green {
+      background-color: var(--status-success-bg);
+      color: var(--status-success);
+    }
+
+    .kpi-circle-icon.icon-orange {
+      background-color: var(--status-warning-bg);
+      color: var(--status-warning);
+    }
+
+    .kpi-circle-icon.icon-purple {
+      background-color: var(--status-purple-bg);
+      color: var(--status-purple);
+    }
+
+    .kpi-circle-icon.icon-blue {
+      background-color: var(--status-blue-bg);
+      color: var(--status-blue);
+    }
+
+    .kpi-main-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .kpi-number-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .kpi-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .kpi-trend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .trend-positive {
+      color: var(--status-success);
+    }
+
+    .trend-negative {
+      color: var(--status-critical);
+    }
+
+    .kpi-title-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .kpi-sub-hint {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    /* ==========================================================================
+       5. MAIN CONTENT GRID (Map + Traffic Chart + Donut + Zone Status)
+       ========================================================================== */
+    .dashboard-main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .card-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-tab-group {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .pill-tab-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .pill-tab-btn.active {
+      background-color: var(--bg-surface);
+      color: var(--gov-primary);
+      box-shadow: var(--shadow-xs);
+    }
+
+    /* GIS Map Container */
+    #dashboardMap {
+      width: 100%;
+      height: 380px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      z-index: 10;
+    }
+
+    .map-footer-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .map-stat-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-light);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-val {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+    }
+
+    /* Secondary Grid (Charts & Zones) */
+    .dashboard-secondary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .chart-container-wrap {
+      position: relative;
+      width: 100%;
+      height: 260px;
+    }
+
+    /* Donut Chart Legend */
+    .donut-legend-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .legend-bullet-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-bullet {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--radius-full);
+    }
+
+    /* Zone Health Cards */
+    .zone-health-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .zone-row-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+    }
+
+    .zone-row-card:hover {
+      border-color: var(--border-color);
+      background-color: var(--bg-hover);
+    }
+
+    .zone-info-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .zone-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .zone-stats {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+    }
+
+    .badge-good {
+      background-color: var(--status-success-bg);
+      color: var(--status-success);
+    }
+
+    .badge-moderate {
+      background-color: var(--status-warning-bg);
+      color: var(--status-warning);
+    }
+
+    .badge-critical {
+      background-color: var(--status-critical-bg);
+      color: var(--status-critical);
+    }
+
+    /* Incidents Table */
+    .data-table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .utis-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    .utis-table th {
+      background-color: var(--bg-surface-subtle);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .utis-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    .utis-table tbody tr:hover {
+      background-color: var(--bg-hover);
+    }
+
+    /* MODAL / DRAWER (Alert detail & inspection) */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 560px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalEnter 0.2s ease-out;
+    }
+
+    @keyframes modalEnter {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .detail-item-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .detail-item-val {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .recommendation-box {
+      background-color: var(--gov-accent-soft);
+      border: 1px solid #BFDBFE;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    body.dark-mode .recommendation-box {
+      background-color: #1E293B;
+      border-color: #3B82F6;
+    }
+
+    .rec-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1D4ED8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .modal-footer {
+      padding: 14px 24px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background-color: var(--bg-surface-subtle);
+    }
+
+    /* Notification Dropdown */
+    .notif-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      width: 320px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      flex-direction: column;
+      z-index: 120;
+      overflow: hidden;
+    }
+
+    .notif-dropdown.active {
+      display: flex;
+    }
+
+    .notif-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notif-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .notif-item:hover {
+      background-color: var(--bg-hover);
+    }
+
+    /* View Switcher Controls */
+    .view-panel {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      animation: fadeIn 0.15s ease-in;
+    }
+
+    .view-panel.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .kpi-grid-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-secondary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-sidebar {
+        transform: translateX(-100%);
+      }
+
+      .app-sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .app-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+
+      .kpi-grid-row {
+        grid-template-columns: 1fr;
+      }
+
+      .header-search-pill input {
+        width: 150px;
+      }
+
+      .header-search-pill input:focus {
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+    <!-- ====================================================================
+         LEFT SIDEBAR (NextAdmin Structure)
+         ==================================================================== -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo-icon">U</div>
+        <div class="brand-titles">
+          <div class="brand-name">
+            UTIS
+            <span class="brand-tag">SIH '26</span>
+          </div>
+          <span class="brand-sub">Mobility Intelligence Platform</span>
+        </div>
+      </div>
+
+      <div class="sidebar-nav-wrap">
+        <div>
+          <div class="nav-section-title">MAIN MONITORING</div>
+          <ul class="nav-list">
+            <li>
+              <button class="nav-item-btn active" onclick="switchView('dashboard', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect width="7" height="9" x="3" y="3" rx="1" />
+                    <rect width="7" height="5" x="14" y="3" rx="1" />
+                    <rect width="7" height="9" x="14" y="12" rx="1" />
+                    <rect width="7" height="5" x="3" y="16" rx="1" />
+                  </svg>
+                  <span>Dashboard</span>
+                </div>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('fleet', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path
+                      d="M4 16c0 1.1.9 2 2 2h1v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2h4v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2h1c1.1 0 2-.9 2-2V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10Z" />
+                    <path d="M4 10h16" />
+                    <circle cx="7.5" cy="14.5" r="1.5" />
+                    <circle cx="16.5" cy="14.5" r="1.5" />
+                  </svg>
+                  <span>Live Fleet</span>
+                </div>
+                <span class="nav-badge badge-green">128</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('map', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                    <line x1="9" x2="9" y1="3" y2="18" />
+                    <line x1="15" x2="15" y1="6" y2="21" />
+                  </svg>
+                  <span>GIS Spatial Map</span>
+                </div>
+                <span class="nav-badge">Live</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('traffic', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 20V10" />
+                    <path d="M12 20V4" />
+                    <path d="M6 20v-6" />
+                  </svg>
+                  <span>Traffic Monitoring</span>
+                </div>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('roads', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9" />
+                    <path d="M15 13 9 7l4-4 6 6h3a8 8 0 0 1-7 7z" />
+                  </svg>
+                  <span>Road Conditions</span>
+                </div>
+                <span class="nav-badge badge-alert">16 Issues</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('environment', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+                  </svg>
+                  <span>Environmental (AQI)</span>
+                </div>
+                <span class="nav-badge badge-green">82 Good</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('alerts', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                    <line x1="12" x2="12" y1="9" y2="13" />
+                    <line x1="12" x2="12.01" y1="17" y2="17" />
+                  </svg>
+                  <span>Incidents & Alerts</span>
+                </div>
+                <span class="nav-badge badge-alert">7</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="nav-section-title">INTELLIGENCE & SYSTEM</div>
+          <ul class="nav-list">
+            <li>
+              <button class="nav-item-btn" onclick="switchView('analytics', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="m22 7-8.5 8.5-5-5L2 17" />
+                    <path d="M16 7h6v6" />
+                  </svg>
+                  <span>AI Analytics</span>
+                </div>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('reports', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                  <span>Reports & Audit</span>
+                </div>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('status', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect width="20" height="8" x="2" y="2" rx="2" />
+                    <rect width="20" height="8" x="2" y="14" rx="2" />
+                  </svg>
+                  <span>System Health</span>
+                </div>
+                <span class="nav-badge badge-green">98.4%</span>
+              </button>
+            </li>
+            <li>
+              <button class="nav-item-btn" onclick="switchView('settings', this)">
+                <div class="nav-item-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path
+                      d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <span>Preferences</span>
+                </div>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Collapse Sidebar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <span style="font-size: 11px; color: var(--text-light); font-weight: 500;">v2.6 Enterprise</span>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         MAIN APP CONTAINER
+         ==================================================================== -->
+    <main class="app-main" id="appMain">
+      <!-- SIH Prototype Top Strip -->
+      <div class="sih-indicator-bar">
+        <div>
+          <span class="sih-pill-badge">SIH PROTOTYPE</span>
+          <span>Ministry of Housing and Urban Affairs • Smart Mobility & GIS Edge Network</span>
+        </div>
+        <div>
+          <span style="opacity: 0.85;">Telemetric Edge Node: <strong>MH-PUN-CENTRAL-01</strong></span>
+        </div>
+      </div>
+
+      <!-- Header (NextAdmin Style) -->
+      <header class="app-header">
+        <div class="header-left-col">
+          <h1 class="page-title" id="pageTitleText">Dashboard</h1>
+          <span class="page-subtitle" id="pageSubtitleText">Real-time overview of urban conditions collected through
+            public transport fleet</span>
+        </div>
+
+        <div class="header-right-col">
+          <!-- Search Pill -->
+          <div class="header-search-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input type="search" placeholder="Search Bus, Route or Zone..." id="globalSearchInput"
+              onkeyup="handleGlobalSearch(event)">
+          </div>
+
+          <!-- Live Clock -->
+          <div class="clock-pill">
+            <span style="width: 7px; height: 7px; background: #10B981; border-radius: 50%;"></span>
+            <span id="liveIstClock">12:00:00 IST</span>
+          </div>
+
+          <!-- Night/Light Theme Toggle -->
+          <button class="action-icon-btn" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode">
+            <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          </button>
+
+          <!-- Notifications Button -->
+          <div style="position: relative;">
+            <button class="action-icon-btn" onclick="toggleNotifDropdown()" title="System Alerts">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+              <div class="notif-dot"></div>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown">
+              <div class="notif-header">
+                <span>Recent System Alerts</span>
+                <span style="font-size: 11px; color: var(--gov-accent); cursor: pointer;"
+                  onclick="switchView('alerts')">View All</span>
+              </div>
+              <div class="notif-item" onclick="openAlertModal('INC-1042')">
+                <span style="font-weight: 600; font-size: 12px; color: var(--status-critical);">● Critical: Severe
+                  Pothole Cluster</span>
+                <span style="font-size: 11px; color: var(--text-muted);">Sancheti Chowk • BUS-1024 Telemetry</span>
+                <span style="font-size: 10px; color: var(--text-light);">2 mins ago</span>
+              </div>
+              <div class="notif-item" onclick="openAlertModal('INC-1043')">
+                <span style="font-weight: 600; font-size: 12px; color: var(--status-warning);">● Warning: Bottleneck
+                  Delay (+14 min)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">JM Road Junction • 6 Buses Affected</span>
+                <span style="font-size: 10px; color: var(--text-light);">8 mins ago</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Officer Profile -->
+          <div class="officer-profile-pill" onclick="switchView('settings')">
+            <div class="officer-avatar">RS</div>
+            <div class="officer-info">
+              <span class="officer-name">Shri R. Sharma</span>
+              <span class="officer-role">Transport Controller</span>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body Container -->
+      <div class="page-content-wrapper">
+
+        <!-- ==================================================================
+             VIEW 1: MAIN DASHBOARD VIEW
+             ================================================================== -->
+        <div class="view-panel active" id="view-dashboard">
+
+          <!-- Filter Area -->
+          <div class="filter-bar-card">
+            <div class="filter-groups">
+              <div class="filter-item">
+                <span class="filter-label">City:</span>
+                <select class="filter-select" id="filterCity" onchange="applyFilters()">
+                  <option value="Pune" selected>Pune Metropolitan (PMPML)</option>
+                  <option value="Delhi">Delhi Capital Region (DTC)</option>
+                  <option value="Bengaluru">Bengaluru Urban (BMTC)</option>
+                  <option value="Mumbai">Mumbai Metro (BEST)</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <span class="filter-label">Area Zone:</span>
+                <select class="filter-select" id="filterZone" onchange="applyFilters()">
+                  <option value="all" selected>All Urban Zones (42)</option>
+                  <option value="central">Central Corridor (Shivaji Nagar)</option>
+                  <option value="east">East Industrial Sector (Hadapsar)</option>
+                  <option value="north">North University Ring (Aundh)</option>
+                  <option value="west">West Tech Corridor (Kothrud)</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <span class="filter-label">Time Period:</span>
+                <select class="filter-select" id="filterTime" onchange="applyFilters()">
+                  <option value="realtime" selected>Live Real-Time Stream</option>
+                  <option value="today">Today (Peak + Off-Peak)</option>
+                  <option value="7days">Past 7 Days</option>
+                  <option value="month">Monthly Audit</option>
+                </select>
+              </div>
+
+              <div class="filter-item">
+                <span class="filter-label">Vehicle Type:</span>
+                <select class="filter-select" id="filterVehicleType" onchange="applyFilters()">
+                  <option value="all" selected>All Fleet (128 Units)</option>
+                  <option value="electric">Electric AC Transit</option>
+                  <option value="cng">CNG Standard Bus</option>
+                  <option value="brts">BRTS Articulated</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filter-actions">
+              <button class="btn btn-outline" onclick="resetFilters()">Reset</button>
+              <button class="btn btn-primary" onclick="simulateDataSync()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                </svg>
+                <span>Live Sync</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- NEXTADMIN 4 KPI CARDS (Exact match to Reference Image) -->
+          <div class="kpi-grid-row">
+            <!-- Card 1: Active Vehicles (Green Icon) -->
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M4 16c0 1.1.9 2 2 2h1v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2h4v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-2h1c1.1 0 2-.9 2-2V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10Z" />
+                  <path d="M4 10h16" />
+                  <circle cx="7.5" cy="14.5" r="1.5" />
+                  <circle cx="16.5" cy="14.5" r="1.5" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number" id="kpiActiveVehicles">128</span>
+                  <span class="kpi-trend-badge trend-positive">
+                    0.43% ↑
+                  </span>
+                </div>
+                <span class="kpi-title-label">Active Vehicles</span>
+                <span class="kpi-sub-hint">Vehicles currently transmitting telemetry</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Areas Covered (Orange Icon) -->
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                  <line x1="9" x2="9" y1="3" y2="18" />
+                  <line x1="15" x2="15" y1="6" y2="21" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number" id="kpiAreasCovered">42</span>
+                  <span class="kpi-trend-badge trend-positive">
+                    4.35% ↑
+                  </span>
+                </div>
+                <span class="kpi-title-label">Areas Covered</span>
+                <span class="kpi-sub-hint">Urban spatial monitoring zones</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Road Issues Detected (Purple Icon) -->
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m14 12-8.5 8.5a2.12 2.12 0 1 1-3-3L11 9" />
+                  <path d="M15 13 9 7l4-4 6 6h3a8 8 0 0 1-7 7z" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number" id="kpiRoadIssues">16</span>
+                  <span class="kpi-trend-badge trend-positive" style="color: var(--status-purple);">
+                    2.59% ↑
+                  </span>
+                </div>
+                <span class="kpi-title-label">Road Issues</span>
+                <span class="kpi-sub-hint">Detected potholes & surface defects</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Active Alerts (Blue Icon) -->
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                  <line x1="12" x2="12" y1="9" y2="13" />
+                  <line x1="12" x2="12.01" y1="17" y2="17" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number" id="kpiActiveAlerts">07</span>
+                  <span class="kpi-trend-badge trend-negative">
+                    -0.96% ↓
+                  </span>
+                </div>
+                <span class="kpi-title-label">Active Alerts</span>
+                <span class="kpi-sub-hint">Require operational control action</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAIN GRID: GIS MAP + TRAFFIC CHART (Like NextAdmin Payments & Profit row) -->
+          <div class="dashboard-main-grid">
+            <!-- GIS MAP CARD (Left Wide Card) -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h2 class="card-title">Live GIS Fleet & Mobile Sensor Telemetry</h2>
+                  <span class="card-subtitle">Real-time edge ingestion: vehicles acting as mobile urban sensing
+                    units</span>
+                </div>
+                <div class="card-actions-group">
+                  <div class="pill-tab-group">
+                    <button class="pill-tab-btn active" onclick="setMapLayer('all', this)">All Sensors</button>
+                    <button class="pill-tab-btn" onclick="setMapLayer('buses', this)">Buses Only</button>
+                    <button class="pill-tab-btn" onclick="setMapLayer('potholes', this)">Road Defects</button>
+                    <button class="pill-tab-btn" onclick="setMapLayer('aqi', this)">AQI Heat</button>
+                  </div>
+                  <button class="btn btn-outline" style="height: 28px; padding: 0 8px;" onclick="switchView('map')"
+                    title="Fullscreen Map">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M15 3h6v6" />
+                      <path d="M9 21H3v-6" />
+                      <path d="M21 3l-7 7" />
+                      <path d="M3 21l7-7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Leaflet Map -->
+              <div id="dashboardMap"></div>
+
+              <!-- Map Bottom Stats Strip -->
+              <div class="map-footer-stats">
+                <div class="map-stat-col">
+                  <span class="stat-label">Monitored Corridor</span>
+                  <span class="stat-val">8,420 km</span>
+                </div>
+                <div class="map-stat-col">
+                  <span class="stat-label">Ingested Packets</span>
+                  <span class="stat-val">1.42M / day</span>
+                </div>
+                <div class="map-stat-col">
+                  <span class="stat-label">Avg Pothole Latency</span>
+                  <span class="stat-val">420 ms</span>
+                </div>
+                <div class="map-stat-col">
+                  <span class="stat-label">Network Sync Rate</span>
+                  <span class="stat-val">99.8%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TRAFFIC & SPEED CHART (Right Card) -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h2 class="card-title">Traffic & Velocity Trends</h2>
+                  <span class="card-subtitle">Corridor vehicle speed vs congestion index</span>
+                </div>
+                <div class="card-actions-group">
+                  <select class="filter-select" style="height: 28px; padding-right: 22px; font-size: 11px;">
+                    <option>This Week</option>
+                    <option>Today</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="chart-container-wrap">
+                <canvas id="trafficVelocityChart"></canvas>
+              </div>
+
+              <div
+                style="display: flex; justify-content: space-around; padding-top: 10px; border-top: 1px solid var(--border-subtle); text-align: center;">
+                <div>
+                  <span style="font-size: 11px; color: var(--text-light); text-transform: uppercase;">Average
+                    Speed</span>
+                  <div
+                    style="font-size: 18px; font-weight: 700; color: var(--text-main); font-family: var(--font-mono);">
+                    26.8 km/h</div>
+                </div>
+                <div style="border-left: 1px solid var(--border-subtle); height: 32px;"></div>
+                <div>
+                  <span style="font-size: 11px; color: var(--text-light); text-transform: uppercase;">Peak
+                    Bottleneck</span>
+                  <div
+                    style="font-size: 18px; font-weight: 700; color: var(--status-critical); font-family: var(--font-mono);">
+                    18:30 IST</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECONDARY GRID: FLEET DONUT & ZONE HEALTH -->
+          <div class="dashboard-secondary-grid">
+            <!-- FLEET DONUT CARD -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h2 class="card-title">Fleet Propulsion & Sensing Types</h2>
+                  <span class="card-subtitle">Active mobile edge sensor distributions</span>
+                </div>
+                <div class="card-actions-group">
+                  <span class="status-badge badge-good">● 100% Operational</span>
+                </div>
+              </div>
+
+              <div
+                style="display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                <div style="width: 170px; height: 170px; position: relative;">
+                  <canvas id="fleetDonutChart"></canvas>
+                </div>
+                <div class="donut-legend-wrap" style="flex: 1; max-width: 240px;">
+                  <div class="donut-legend-item">
+                    <div class="legend-bullet-text">
+                      <span class="legend-bullet" style="background: #3B82F6;"></span>
+                      <span>Electric AC (Olectra)</span>
+                    </div>
+                    <strong>48 (38%)</strong>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="legend-bullet-text">
+                      <span class="legend-bullet" style="background: #10B981;"></span>
+                      <span>CNG Standard (Tata)</span>
+                    </div>
+                    <strong>54 (42%)</strong>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="legend-bullet-text">
+                      <span class="legend-bullet" style="background: #8B5CF6;"></span>
+                      <span>BRTS Articulated</span>
+                    </div>
+                    <strong>26 (20%)</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ZONE HEALTH & ROAD CONDITION INDEX -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title-group">
+                  <h2 class="card-title">Zone Health & Road Condition Index</h2>
+                  <span class="card-subtitle">Aggregated road quality & air index per zone</span>
+                </div>
+                <button class="btn btn-outline" style="height: 28px; padding: 0 8px;" onclick="switchView('roads')">View
+                  All</button>
+              </div>
+
+              <div class="zone-health-list">
+                <div class="zone-row-card">
+                  <div class="zone-info-block">
+                    <span class="zone-name">Central Zone (Shivaji Nagar)</span>
+                    <span class="zone-stats">Speed: 31 km/h • Road Quality: 94% • AQI: 82</span>
+                  </div>
+                  <span class="status-badge badge-good">Good</span>
+                </div>
+
+                <div class="zone-row-card">
+                  <div class="zone-info-block">
+                    <span class="zone-name">East Corridor (Hadapsar Flyover)</span>
+                    <span class="zone-stats">Speed: 14 km/h • 4 Potholes Logged • AQI: 142</span>
+                  </div>
+                  <span class="status-badge badge-critical">Critical Defect</span>
+                </div>
+
+                <div class="zone-row-card">
+                  <div class="zone-info-block">
+                    <span class="zone-name">North Ring (Aundh - Baner)</span>
+                    <span class="zone-stats">Speed: 28 km/h • Minor Roughness • AQI: 65</span>
+                  </div>
+                  <span class="status-badge badge-moderate">Moderate</span>
+                </div>
+
+                <div class="zone-row-card">
+                  <div class="zone-info-block">
+                    <span class="zone-name">West Sector (Kothrud Depot)</span>
+                    <span class="zone-stats">Speed: 36 km/h • Smooth Asphalt • AQI: 72</span>
+                  </div>
+                  <span class="status-badge badge-good">Good</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIVE INCIDENTS TABLE -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 class="card-title">Priority Incident Action Queue</h2>
+                <span class="card-subtitle">Real-time anomalies flagged by fleet edge accelerometers and vision
+                  nodes</span>
+              </div>
+              <button class="btn btn-primary" style="height: 28px; padding: 0 10px;"
+                onclick="switchView('alerts')">Manage All (7)</button>
+            </div>
+
+            <div class="data-table-container">
+              <table class="utis-table">
+                <thead>
+                  <tr>
+                    <th>Alert ID</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Sensor Unit</th>
+                    <th>Severity</th>
+                    <th>Detected</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardIncidentsTableBody">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 2: LIVE FLEET
+             ================================================================== -->
+        <div class="view-panel" id="view-fleet">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 class="card-title">Live Mobile Sensing Fleet Directory</h2>
+                <span class="card-subtitle">All 128 registered public transit units actively streaming urban
+                  intelligence</span>
+              </div>
+              <div class="card-actions-group">
+                <input type="text" placeholder="Search vehicle ID..." class="filter-select" id="fleetSearchInput"
+                  onkeyup="filterFleetTable()" style="height: 32px;">
+                <select class="filter-select" id="fleetStatusFilter" onchange="filterFleetTable()"
+                  style="height: 32px;">
+                  <option value="all">All Statuses</option>
+                  <option value="Active">Active / On Time</option>
+                  <option value="Delayed">Delayed</option>
+                  <option value="Critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="utis-table">
+                <thead>
+                  <tr>
+                    <th>Vehicle ID</th>
+                    <th>Route</th>
+                    <th>Area Zone</th>
+                    <th>Status</th>
+                    <th>Speed</th>
+                    <th>Battery / Fuel</th>
+                    <th>Pothole Sensor</th>
+                    <th>Last Ping</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="liveFleetTableBody">
+                  <!-- Generated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 3: FULLSCREEN GIS MAP
+             ================================================================== -->
+        <div class="view-panel" id="view-map">
+          <div class="card" style="padding: 16px;">
+            <div class="card-header" style="border: none; padding-bottom: 8px;">
+              <div class="card-title-group">
+                <h2 class="card-title">GIS Command Center & Spatial Edge Intelligence</h2>
+                <span class="card-subtitle">High-resolution geospatial overlay of transit telemetry, road roughness, and
+                  air quality</span>
+              </div>
+              <div class="pill-tab-group">
+                <button class="pill-tab-btn active" onclick="setFullMapLayer('all', this)">All Layers</button>
+                <button class="pill-tab-btn" onclick="setFullMapLayer('fleet', this)">Fleet</button>
+                <button class="pill-tab-btn" onclick="setFullMapLayer('potholes', this)">Potholes</button>
+                <button class="pill-tab-btn" onclick="setFullMapLayer('congestion', this)">Congestion</button>
+                <button class="pill-tab-btn" onclick="setFullMapLayer('aqi', this)">AQI</button>
+              </div>
+            </div>
+            <div id="fullGisMap"
+              style="width: 100%; height: 620px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 4: TRAFFIC MONITORING
+             ================================================================== -->
+        <div class="view-panel" id="view-traffic">
+          <div class="kpi-grid-row">
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">Moderate</span>
+                  <span class="kpi-trend-badge trend-positive">Stable</span>
+                </div>
+                <span class="kpi-title-label">City Traffic Level</span>
+                <span class="kpi-sub-hint">Composite index: 48/100</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">26.4 km/h</span>
+                  <span class="kpi-trend-badge trend-positive">+2.1%</span>
+                </div>
+                <span class="kpi-title-label">Average Transit Velocity</span>
+                <span class="kpi-sub-hint">Across all 42 corridors</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                  <line x1="12" x2="12" y1="9" d2="13" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">5 Hotspots</span>
+                  <span class="kpi-trend-badge trend-negative">Delay >10m</span>
+                </div>
+                <span class="kpi-title-label">Congested Junctions</span>
+                <span class="kpi-sub-hint">Sancheti, Swargate, FC Road</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">91.4%</span>
+                  <span class="kpi-trend-badge trend-positive">+1.4%</span>
+                </div>
+                <span class="kpi-title-label">Signal Clearance Rate</span>
+                <span class="kpi-sub-hint">Transit priority enabled</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-secondary-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Corridor Congestion Trends</h3>
+                <span class="card-subtitle">Hourly vehicular flow delay</span>
+              </div>
+              <div class="chart-container-wrap">
+                <canvas id="trafficCongestionChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Top 5 Bottleneck Corridors</h3>
+                <span class="card-subtitle">Speed reduction vs free-flow baseline</span>
+              </div>
+              <div class="zone-health-list">
+                <div class="zone-row-card">
+                  <div>
+                    <strong>Sancheti Chowk Flyover Approach</strong>
+                    <div style="font-size: 11px; color: var(--text-muted);">Avg Speed: 9 km/h (Normal: 35 km/h) • Delay:
+                      +15 min</div>
+                  </div>
+                  <span class="status-badge badge-critical">Severe</span>
+                </div>
+                <div class="zone-row-card">
+                  <div>
+                    <strong>Swargate Underpass Junction</strong>
+                    <div style="font-size: 11px; color: var(--text-muted);">Avg Speed: 12 km/h • Delay: +9 min</div>
+                  </div>
+                  <span class="status-badge badge-moderate">Moderate</span>
+                </div>
+                <div class="zone-row-card">
+                  <div>
+                    <strong>JM Road Deccan Corner</strong>
+                    <div style="font-size: 11px; color: var(--text-muted);">Avg Speed: 15 km/h • Delay: +6 min</div>
+                  </div>
+                  <span class="status-badge badge-moderate">Moderate</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 5: ROAD CONDITIONS (POTHOLES)
+             ================================================================== -->
+        <div class="view-panel" id="view-roads">
+          <div class="filter-bar-card">
+            <div class="filter-groups">
+              <div class="filter-item">
+                <span class="filter-label">Defect Filter:</span>
+                <select class="filter-select">
+                  <option>All Detected Defects (16)</option>
+                  <option>Critical Potholes (IRI > 5.0)</option>
+                  <option>Surface Roughness (Moderate)</option>
+                  <option>Scheduled Maintenance</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="alert('Municipal Road Maintenance Work Order Dispatched!')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+              <span>Dispatch Repair Crew</span>
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h3 class="card-title">Detected Road Anomalies & Surface Degradation</h3>
+                <span class="card-subtitle">Inferred automatically from bus 3-axis accelerometer shock telemetry</span>
+              </div>
+              <span class="status-badge badge-critical">3 Critical Sections</span>
+            </div>
+
+            <div class="data-table-container">
+              <table class="utis-table">
+                <thead>
+                  <tr>
+                    <th>Defect ID</th>
+                    <th>Corridor Location</th>
+                    <th>Anomaly Type</th>
+                    <th>Roughness (IRI)</th>
+                    <th>Observations</th>
+                    <th>Detected By</th>
+                    <th>Priority Level</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>#POT-2041</strong></td>
+                    <td>Sancheti Chowk Approach (Ch. 4.2 km)</td>
+                    <td>Deep Pothole (8cm)</td>
+                    <td><span style="color: var(--status-critical); font-weight: 700;">5.8 m/km</span></td>
+                    <td>42 Bus Passes</td>
+                    <td>BUS-1024, BUS-1042</td>
+                    <td><span class="status-badge badge-critical">Critical</span></td>
+                    <td><button class="btn btn-outline" style="height: 26px; padding: 0 8px;"
+                        onclick="openAlertModal('INC-1042')">Inspect</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>#POT-2042</strong></td>
+                    <td>Hadapsar Gadital Main Depot Rd</td>
+                    <td>Asphalt Cracking & Rutting</td>
+                    <td><span style="color: var(--status-warning); font-weight: 700;">4.2 m/km</span></td>
+                    <td>28 Bus Passes</td>
+                    <td>BUS-1088</td>
+                    <td><span class="status-badge badge-moderate">Moderate</span></td>
+                    <td><button class="btn btn-outline" style="height: 26px; padding: 0 8px;"
+                        onclick="alert('Viewing Hadapsar IRI Spectrogram')">Inspect</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>#POT-2043</strong></td>
+                    <td>University Road (Near E-Square)</td>
+                    <td>Corrugated Surface</td>
+                    <td><span style="color: var(--status-warning); font-weight: 700;">3.9 m/km</span></td>
+                    <td>31 Bus Passes</td>
+                    <td>BUS-1025</td>
+                    <td><span class="status-badge badge-moderate">Moderate</span></td>
+                    <td><button class="btn btn-outline" style="height: 26px; padding: 0 8px;"
+                        onclick="alert('Viewing E-Square Anomaly')">Inspect</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>#POT-2044</strong></td>
+                    <td>Kothrud Stand Entrance</td>
+                    <td>Sunken Manhole Cover</td>
+                    <td><span style="color: var(--status-critical); font-weight: 700;">6.1 m/km</span></td>
+                    <td>19 Bus Passes</td>
+                    <td>BUS-1102</td>
+                    <td><span class="status-badge badge-critical">Critical</span></td>
+                    <td><button class="btn btn-outline" style="height: 26px; padding: 0 8px;"
+                        onclick="alert('Viewing Manhole Anomaly')">Inspect</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 6: ENVIRONMENTAL (AQI)
+             ================================================================== -->
+        <div class="view-panel" id="view-environment">
+          <div class="kpi-grid-row">
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">82 AQI</span>
+                  <span class="kpi-trend-badge trend-positive">Moderate</span>
+                </div>
+                <span class="kpi-title-label">Citywide Average Air Quality</span>
+                <span class="kpi-sub-hint">CPCB standards compliant</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="m4.93 4.93 4.24 4.24" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">38 µg/m³</span>
+                  <span class="kpi-trend-badge trend-positive">Normal</span>
+                </div>
+                <span class="kpi-title-label">PM2.5 Particulate Density</span>
+                <span class="kpi-sub-hint">Bus roof optical sensor array</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">28.4°C</span>
+                  <span class="kpi-trend-badge trend-positive">Ambient</span>
+                </div>
+                <span class="kpi-title-label">Urban Heat Microclimate</span>
+                <span class="kpi-sub-hint">Humidity: 54% RH</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <div class="kpi-number-row">
+                  <span class="kpi-number">64 dB</span>
+                  <span class="kpi-trend-badge trend-positive">Acceptable</span>
+                </div>
+                <span class="kpi-title-label">Acoustic Noise Pollution</span>
+                <span class="kpi-sub-hint">Roadside microphone telemetry</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Zone-Wise Air Quality Spectrogram</h3>
+              <span class="card-subtitle">Real-time mobile bus readings vs stationary stations</span>
+            </div>
+            <div class="zone-health-list">
+              <div class="zone-row-card">
+                <div>
+                  <strong>Shivaji Nagar Interchange</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">AQI 78 (Good) • PM2.5: 34 µg/m³ • Temp: 28°C
+                  </div>
+                </div>
+                <span class="status-badge badge-good">Good Air Quality</span>
+              </div>
+              <div class="zone-row-card">
+                <div>
+                  <strong>Hadapsar Industrial Approach</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">AQI 142 (Moderate - Unhealthy for sensitive
+                    groups) • PM2.5: 68 µg/m³</div>
+                </div>
+                <span class="status-badge badge-critical">Pollution Spike</span>
+              </div>
+              <div class="zone-row-card">
+                <div>
+                  <strong>Aundh University Woods</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">AQI 58 (Excellent) • PM2.5: 22 µg/m³</div>
+                </div>
+                <span class="status-badge badge-good">Clean Zone</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 7: INCIDENTS & ALERTS
+             ================================================================== -->
+        <div class="view-panel" id="view-alerts">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 class="card-title">Live Urban Incidents & Anomaly Registry</h2>
+                <span class="card-subtitle">Automated alerts requiring administrative decision and inter-departmental
+                  dispatch</span>
+              </div>
+              <div class="pill-tab-group">
+                <button class="pill-tab-btn active">All (7)</button>
+                <button class="pill-tab-btn">Critical (2)</button>
+                <button class="pill-tab-btn">Road Issues (3)</button>
+                <button class="pill-tab-btn">Congestion (2)</button>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="utis-table">
+                <thead>
+                  <tr>
+                    <th>Incident ID</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Severity</th>
+                    <th>Detected Time</th>
+                    <th>Detected By</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="allAlertsTableBody">
+                  <!-- JS generated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 8: ANALYTICS
+             ================================================================== -->
+        <div class="view-panel" id="view-analytics">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 class="card-title">AI Predictive Urban Analytics & Fleet Performance</h2>
+                <span class="card-subtitle">Machine learning models trained on 90 days of mobile sensor passes</span>
+              </div>
+              <button class="btn btn-primary" onclick="alert('Exporting AI Intelligence Report (PDF)')">Export Analytics
+                PDF</button>
+            </div>
+            <div class="dashboard-secondary-grid">
+              <div style="height: 280px; position: relative;">
+                <canvas id="analyticsSpeedChart"></canvas>
+              </div>
+              <div style="height: 280px; position: relative;">
+                <canvas id="analyticsPotholeTrendChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 9: REPORTS & AUDIT
+             ================================================================== -->
+        <div class="view-panel" id="view-reports">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 class="card-title">Official Municipal & Transit Reports</h2>
+                <span class="card-subtitle">Automated SIH compliance documents ready for MoHUA submission</span>
+              </div>
+            </div>
+
+            <div class="zone-health-list">
+              <div class="zone-row-card">
+                <div>
+                  <strong>Daily Transit Fleet Operational Telemetry Audit</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Contains GPS uptime, punctuality, speed
+                    compliance for 128 buses</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-outline" onclick="alert('Previewing Daily Fleet Audit...')">View</button>
+                  <button class="btn btn-primary" onclick="downloadSampleReport('Fleet_Audit_Report.csv')">Export
+                    CSV</button>
+                </div>
+              </div>
+
+              <div class="zone-row-card">
+                <div>
+                  <strong>Citywide Road Surface & Pothole Roughness Survey</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Pothole coordinates, severity scores, and
+                    photo validation references</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-outline" onclick="alert('Previewing Road Survey...')">View</button>
+                  <button class="btn btn-primary" onclick="downloadSampleReport('Pothole_Survey.csv')">Export
+                    CSV</button>
+                </div>
+              </div>
+
+              <div class="zone-row-card">
+                <div>
+                  <strong>Mobile Environmental & AQI Microclimate Report</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Zone-wise PM2.5, PM10, temperature and
+                    acoustic levels</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-outline" onclick="alert('Previewing AQI Report...')">View</button>
+                  <button class="btn btn-primary" onclick="downloadSampleReport('AQI_Report.csv')">Export CSV</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 10: SYSTEM HEALTH
+             ================================================================== -->
+        <div class="view-panel" id="view-status">
+          <div class="kpi-grid-row">
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <rect width="20" height="8" x="2" y="2" rx="2" />
+                  <rect width="20" height="8" x="2" y="14" rx="2" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <span class="kpi-number">99.9%</span>
+                <span class="kpi-title-label">Fleet Telemetry Ingestion</span>
+                <span class="kpi-sub-hint">MQTT Brokers: 4 Nodes Healthy</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <span class="kpi-number">Operational</span>
+                <span class="kpi-title-label">GIS Map Engine</span>
+                <span class="kpi-sub-hint">Leaflet + OSM Tiles</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <span class="kpi-number">98.2%</span>
+                <span class="kpi-title-label">Sensor Network Health</span>
+                <span class="kpi-sub-hint">Accelerometers & AQI optical</span>
+              </div>
+            </div>
+
+            <div class="nextadmin-kpi-card">
+              <div class="kpi-circle-icon icon-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <ellipse cx="12" cy="5" rx="9" ry="3" />
+                  <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                </svg>
+              </div>
+              <div class="kpi-main-metric">
+                <span class="kpi-number">12 ms</span>
+                <span class="kpi-title-label">Database Latency</span>
+                <span class="kpi-sub-hint">PostGIS Spatial DB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             VIEW 11: SETTINGS / PREFERENCES
+             ================================================================== -->
+        <div class="view-panel" id="view-settings">
+          <div class="card" style="max-width: 700px;">
+            <div class="card-header">
+              <h2 class="card-title">Dashboard Preferences & Control Configuration</h2>
+              <span class="card-subtitle">Local controller settings for the UTIS interface</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div>
+                <label style="font-weight: 600; font-size: 13px;">Default City View:</label>
+                <select class="filter-select" style="width: 100%; margin-top: 6px;">
+                  <option selected>Pune Metropolitan (PMPML)</option>
+                  <option>Delhi Capital Region (DTC)</option>
+                  <option>Bengaluru Urban (BMTC)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-weight: 600; font-size: 13px;">Telemetry Stream Frequency:</label>
+                <select class="filter-select" style="width: 100%; margin-top: 6px;">
+                  <option selected>High Fidelity (1-3 Seconds)</option>
+                  <option>Standard (5-10 Seconds)</option>
+                  <option>Low Bandwidth (30 Seconds)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-weight: 600; font-size: 13px;">Audio Alert Warnings:</label>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 6px;">
+                  <input type="checkbox" id="audioToggle" checked style="width: 16px; height: 16px;">
+                  <label for="audioToggle" style="font-size: 13px; color: var(--text-muted);">Play subtle audio chime
+                    when Critical Pothole or Accident is flagged</label>
+                </div>
+              </div>
+
+              <div style="padding-top: 10px;">
+                <button class="btn btn-primary" onclick="alert('Settings Saved Successfully!')">Save
+                  Preferences</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ====================================================================
+       ALERT DETAIL MODAL / DRAWER (NextAdmin Style)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="alertDetailModal" onclick="handleBackdropClick(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="status-badge badge-critical">CRITICAL</span>
+          <span id="modalAlertIdTitle">Alert #INC-1042</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeAlertModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-item-label">Incident Type</span>
+            <span class="detail-item-val" id="modalAlertType">Severe Road Defect (Pothole)</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item-label">Detected Location</span>
+            <span class="detail-item-val" id="modalAlertLocation">Sancheti Chowk Flyover</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item-label">Reporting Bus Unit</span>
+            <span class="detail-item-val" id="modalAlertBus">BUS-1024 (Electric AC)</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-item-label">Timestamp</span>
+            <span class="detail-item-val" id="modalAlertTime">10:42 AM IST</span>
+          </div>
+        </div>
+
+        <div class="recommendation-box">
+          <div class="rec-tag">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="16" y2="12" />
+              <line x1="12" x2="12.01" y1="8" y2="8" />
+            </svg>
+            <span>AI Automated Recommendation</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-main); line-height: 1.4;" id="modalAlertRec">
+            Multiple bus passes have logged accelerometer vertical shock of 2.8G. Immediate pothole patching recommended
+            before peak evening transit. Limit corridor bus speed to 20 km/h.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeAlertModal()">Dismiss</button>
+        <button class="btn btn-primary" onclick="resolveModalAlert()">Dispatch Repair Unit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       SCRIPTS: DATASETS, LEAFLET MAPS, CHART.JS, LOGIC
+       ==================================================================== -->
+  <script>
+    /* 1. MOCK DATASETS (Realistic, consistent with SIH UTIS schema) */
+    const BUSES_DATA = [
+      { id: "BUS-1024", route: "Route 12", routeName: "Pune Stn - Univ. Rd", status: "Delayed", speed: 24, eta: "7 min", nextStop: "Shivaji Nagar", lat: 18.5295, lng: 73.8480, driver: "Ramesh Jadhav", type: "Electric AC (Olectra)", battery: 68, delay: 8, roadScore: "Critical (5.8 IRI)" },
+      { id: "BUS-1025", route: "Route 12", routeName: "Pune Stn - Univ. Rd", status: "Active", speed: 38, eta: "3 min", nextStop: "FC Road", lat: 18.5235, lng: 73.8420, driver: "Suresh Patil", type: "CNG Standard (Tata)", battery: 76, delay: 0, roadScore: "Good (2.1 IRI)" },
+      { id: "BUS-1042", route: "Route 08", routeName: "Swargate - Katraj", status: "Active", speed: 32, eta: "5 min", nextStop: "Bibwewadi", lat: 18.4750, lng: 73.8580, driver: "Mahesh Deshmukh", type: "BRTS Articulated", battery: 84, delay: 1, roadScore: "Good (1.9 IRI)" },
+      { id: "BUS-2081", route: "Route 21", routeName: "Hadapsar - Kothrud", status: "Active", speed: 29, eta: "9 min", nextStop: "Deccan Gymkhana", lat: 18.5160, lng: 73.8410, driver: "Vikas Shinde", type: "Electric AC (Olectra)", battery: 91, delay: 2, roadScore: "Moderate (3.4 IRI)" },
+      { id: "BUS-3012", route: "Route 34", routeName: "Aundh - Hinjawadi", status: "Active", speed: 35, eta: "4 min", nextStop: "Wakad Chowk", lat: 18.5980, lng: 73.7630, driver: "Sunil Kadam", type: "CNG Standard (Tata)", battery: 62, delay: 0, roadScore: "Good (2.4 IRI)" },
+      { id: "BUS-4120", route: "Route 101", routeName: "Nigdi - Pune Stn", status: "Critical", speed: 8, eta: "22 min", nextStop: "Khadki Bazar", lat: 18.5620, lng: 73.8310, driver: "Pradeep Joshi", type: "CNG Standard (Tata)", battery: 45, delay: 18, roadScore: "Moderate (3.8 IRI)" }
+    ];
+
+    const ALERTS_DATA = [
+      { id: "INC-1042", type: "Road Condition", category: "Pothole Anomaly", location: "Sancheti Chowk Flyover", severity: "Critical", busId: "BUS-1024", time: "10:42 AM", status: "Pending Review", rec: "Inspect affected road section. Vertical accelerometer shock 2.8G indicates 8cm pavement depression." },
+      { id: "INC-1043", type: "Traffic Flow", category: "Congestion Bottleneck", location: "JM Road Deccan Corner", severity: "Warning", busId: "BUS-2081", time: "10:35 AM", status: "Active", rec: "Vehicular speed dropped to 11 km/h. Divert feeder lines 12B via FC Road." },
+      { id: "INC-1044", type: "Environmental", category: "AQI PM2.5 Spike", location: "Hadapsar Industrial Approach", severity: "Warning", busId: "BUS-1088", time: "10:18 AM", status: "Investigating", rec: "Air index reached 148 µg/m³. Alert Pune Pollution Control Board monitoring node." },
+      { id: "INC-1045", type: "Vehicle Diagnostic", category: "Engine Temperature Alert", location: "Khadki Bazar", severity: "Critical", busId: "BUS-4120", time: "09:55 AM", status: "Dispatching Standby", rec: "Engine coolant temperature 96°C. Standby unit BUS-4130 dispatched from Khadki depot." }
+    ];
+
+    /* 2. LEAFLET MAP INITIALIZATION */
+    let dashboardMap = null;
+    let fullGisMap = null;
+    let mapMarkers = [];
+
+    function initDashboardMap() {
+      if (dashboardMap) return;
+
+      dashboardMap = L.map('dashboardMap', {
+        center: [18.5204, 73.8567], // Pune Coordinates
+        zoom: 13,
+        zoomControl: false
+      });
+
+      L.control.zoom({ position: 'bottomright' }).addTo(dashboardMap);
+
+      // NextAdmin clean map tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CartoDB & OpenStreetMap',
+        maxZoom: 19
+      }).addTo(dashboardMap);
+
+      renderMapMarkers(dashboardMap);
+    }
+
+    function renderMapMarkers(mapInstance) {
+      mapMarkers.forEach(m => mapInstance.removeLayer(m));
+      mapMarkers = [];
+
+      // Bus Markers
+      BUSES_DATA.forEach(bus => {
+        let color = '#10B981';
+        if (bus.status === 'Delayed') color = '#F59E0B';
+        if (bus.status === 'Critical') color = '#EF4444';
+
+        const customIcon = L.divIcon({
+          className: 'custom-bus-pin',
+          html: `<div style="background-color: ${color}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 800;">🚌</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+
+        const marker = L.marker([bus.lat, bus.lng], { icon: customIcon }).addTo(mapInstance);
+
+        const popupContent = `
+          <div style="font-family: 'Inter', sans-serif; min-width: 180px; padding: 4px;">
+            <div style="font-weight: 800; font-size: 14px; color: #1E293B; margin-bottom: 2px;">${bus.id}</div>
+            <div style="font-size: 11px; color: #64748B; margin-bottom: 8px;">${bus.routeName}</div>
+            <div style="font-size: 12px; display: grid; gap: 4px;">
+              <div><strong>Status:</strong> <span style="color: ${color}; font-weight: 700;">${bus.status}</span></div>
+              <div><strong>Speed:</strong> ${bus.speed} km/h</div>
+              <div><strong>Road Score:</strong> ${bus.roadScore}</div>
+              <div><strong>Battery:</strong> ${bus.battery}%</div>
+            </div>
+            <button onclick="openAlertModal('INC-1042')" style="margin-top: 8px; width: 100%; padding: 4px; background: #123B63; color: #fff; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">Telemetry Details</button>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        mapMarkers.push(marker);
+      });
+
+      // Pothole Marker
+      const potholeIcon = L.divIcon({
+        className: 'pothole-pin',
+        html: `<div style="background: #EF4444; width: 24px; height: 24px; border-radius: 6px; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px;">⚠️</div>`,
+        iconSize: [24, 24]
+      });
+      const potholeMarker = L.marker([18.5295, 73.8480], { icon: potholeIcon }).addTo(mapInstance);
+      potholeMarker.bindPopup(`
+        <div style="padding: 4px;">
+          <strong style="color: #EF4444;">Severe Pothole Cluster</strong><br>
+          <span style="font-size: 11px; color: #64748B;">Sancheti Chowk • IRI: 5.8</span><br>
+          <button onclick="openAlertModal('INC-1042')" style="margin-top: 6px; padding: 4px 8px; background: #EF4444; color: #fff; border: none; border-radius: 4px; font-size: 11px; cursor: pointer;">Inspect Defect</button>
+        </div>
+      `);
+      mapMarkers.push(potholeMarker);
+    }
+
+    function initFullGisMap() {
+      if (fullGisMap) return;
+      fullGisMap = L.map('fullGisMap', {
+        center: [18.5204, 73.8567],
+        zoom: 14
+      });
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CartoDB & OSM'
+      }).addTo(fullGisMap);
+      renderMapMarkers(fullGisMap);
+    }
+
+    /* 3. CHART.JS INITIALIZATION (NextAdmin Look) */
+    let velocityChart = null;
+    let donutChart = null;
+
+    function initCharts() {
+      // Traffic Velocity Line/Bar Chart
+      const ctxVelocity = document.getElementById('trafficVelocityChart');
+      if (ctxVelocity && !velocityChart) {
+        velocityChart = new Chart(ctxVelocity, {
+          type: 'line',
+          data: {
+            labels: ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+            datasets: [
+              {
+                label: 'Fleet Speed (km/h)',
+                data: [38, 22, 26, 34, 32, 24, 18, 28, 36],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 3,
+                pointBackgroundColor: '#3B82F6'
+              },
+              {
+                label: 'Congestion Level (%)',
+                data: [15, 68, 54, 30, 38, 62, 85, 48, 20],
+                borderColor: '#8B5CF6',
+                backgroundColor: 'rgba(139, 92, 246, 0.04)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                borderDash: [4, 4],
+                pointRadius: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { boxWidth: 12, font: { family: 'Inter', size: 11 } }
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { color: 'rgba(226, 232, 240, 0.6)' },
+                ticks: { font: { family: 'Inter', size: 10 } }
+              }
+            }
+          }
+        });
+      }
+
+      // Fleet Donut Chart
+      const ctxDonut = document.getElementById('fleetDonutChart');
+      if (ctxDonut && !donutChart) {
+        donutChart = new Chart(ctxDonut, {
+          type: 'doughnut',
+          data: {
+            labels: ['Electric AC', 'CNG Standard', 'BRTS'],
+            datasets: [{
+              data: [38, 42, 20],
+              backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6'],
+              borderWidth: 0,
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      }
+
+      // Analytics Charts
+      const ctxAnalyticsSpeed = document.getElementById('analyticsSpeedChart');
+      if (ctxAnalyticsSpeed) {
+        new Chart(ctxAnalyticsSpeed, {
+          type: 'bar',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Avg Corridor Punctuality (%)',
+              data: [84, 82, 79, 86, 81, 91, 94],
+              backgroundColor: '#3B82F6',
+              borderRadius: 6
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      const ctxAnalyticsPothole = document.getElementById('analyticsPotholeTrendChart');
+      if (ctxAnalyticsPothole) {
+        new Chart(ctxAnalyticsPothole, {
+          type: 'line',
+          data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+              label: 'Potholes Repaired (MoHUA SLA)',
+              data: [12, 19, 14, 23],
+              borderColor: '#10B981',
+              tension: 0.3
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+    }
+
+    /* 4. TABLE POPULATION & INTERACTIONS */
+    function populateTables() {
+      // Dashboard incidents table
+      const dashTbody = document.getElementById('dashboardIncidentsTableBody');
+      if (dashTbody) {
+        dashTbody.innerHTML = ALERTS_DATA.map(alert => `
+          <tr>
+            <td><strong>#${alert.id}</strong></td>
+            <td>${alert.category}</td>
+            <td>${alert.location}</td>
+            <td><code>${alert.busId}</code></td>
+            <td>
+              <span class="status-badge ${alert.severity === 'Critical' ? 'badge-critical' : 'badge-moderate'}">
+                ${alert.severity}
+              </span>
+            </td>
+            <td>${alert.time}</td>
+            <td><span style="font-size: 11px; font-weight: 600; color: var(--text-muted);">${alert.status}</span></td>
+            <td>
+              <button class="btn btn-outline" style="height: 26px; padding: 0 8px; font-size: 11px;" onclick="openAlertModal('${alert.id}')">
+                Action
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Live Fleet Table
+      const fleetTbody = document.getElementById('liveFleetTableBody');
+      if (fleetTbody) {
+        fleetTbody.innerHTML = BUSES_DATA.map(bus => `
+          <tr>
+            <td><strong>${bus.id}</strong></td>
+            <td>${bus.route} (${bus.routeName})</td>
+            <td>Shivaji Nagar Central</td>
+            <td>
+              <span class="status-badge ${bus.status === 'Active' ? 'badge-good' : (bus.status === 'Delayed' ? 'badge-moderate' : 'badge-critical')}">
+                ${bus.status}
+              </span>
+            </td>
+            <td><strong>${bus.speed} km/h</strong></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="width: 40px; height: 6px; background: #E2E8F0; border-radius: 3px; overflow: hidden;">
+                  <div style="width: ${bus.battery}%; height: 100%; background: ${bus.battery > 50 ? '#10B981' : '#F59E0B'};"></div>
+                </div>
+                <span style="font-size: 11px;">${bus.battery}%</span>
+              </div>
+            </td>
+            <td><span style="font-size: 11px; color: ${bus.roadScore.includes('Critical') ? '#EF4444' : '#10B981'}; font-weight: 600;">${bus.roadScore}</span></td>
+            <td>Just now</td>
+            <td>
+              <button class="btn btn-outline" style="height: 26px; padding: 0 8px; font-size: 11px;" onclick="focusBusOnMap('${bus.id}')">
+                Track
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // All Alerts Table
+      const alertsTbody = document.getElementById('allAlertsTableBody');
+      if (alertsTbody) {
+        alertsTbody.innerHTML = ALERTS_DATA.map(alert => `
+          <tr>
+            <td><strong>#${alert.id}</strong></td>
+            <td>${alert.type}</td>
+            <td>${alert.location}</td>
+            <td>
+              <span class="status-badge ${alert.severity === 'Critical' ? 'badge-critical' : 'badge-moderate'}">
+                ${alert.severity}
+              </span>
+            </td>
+            <td>${alert.time}</td>
+            <td>${alert.busId}</td>
+            <td>${alert.status}</td>
+            <td>
+              <button class="btn btn-primary" style="height: 26px; padding: 0 8px; font-size: 11px;" onclick="openAlertModal('${alert.id}')">
+                Inspect & Resolve
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    /* 5. VIEW SWITCHING LOGIC */
+    function switchView(viewId, btnElem) {
+      document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
+      const targetView = document.getElementById(`view-${viewId}`);
+      if (targetView) targetView.classList.add('active');
+
+      if (btnElem) {
+        document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+        btnElem.classList.add('active');
+      }
+
+      // Update Top Title
+      const titles = {
+        'dashboard': ['Dashboard', 'Real-time overview of urban conditions collected through public transport fleet'],
+        'fleet': ['Live Fleet Monitoring', 'Real-time GPS telemetry, sensor packets, and battery diagnostics for 128 transit units'],
+        'map': ['GIS Command Center', 'Spatial heatmaps of traffic congestion, road defects, and mobile environmental telemetry'],
+        'traffic': ['Traffic & Flow Velocity', 'Corridor congestion bottlenecks, speed reduction rates, and signal performance'],
+        'roads': ['Road Roughness & Defect Scanner', 'Automated pothole detection, International Roughness Index (IRI), and repair queue'],
+        'environment': ['Environmental & AQI Telemetry', 'Mobile transit sensing of particulate matter (PM2.5), heat microclimate, and noise dB'],
+        'alerts': ['Incidents & Control Queue', 'Urgent urban alerts flagged by edge vision and accelerometer sensors'],
+        'analytics': ['AI Urban Analytics', 'Deep learning predictions on traffic patterns and road surface wear rates'],
+        'reports': ['Official Government Reports', 'Exportable compliance audits for MoHUA and municipal infrastructure planners'],
+        'status': ['Platform System Health', 'Telemetry ingestion servers, spatial databases, and sensor node uptime status'],
+        'settings': ['Control Preferences', 'Configure display zones, alert sirens, and update intervals']
+      };
+
+      if (titles[viewId]) {
+        document.getElementById('pageTitleText').innerText = titles[viewId][0];
+        document.getElementById('pageSubtitleText').innerText = titles[viewId][1];
+      }
+
+      if (viewId === 'map') {
+        setTimeout(initFullGisMap, 100);
+      }
+    }
+
+    /* 6. MODAL & ALERT DETAIL ACTIONS */
+    function openAlertModal(alertId) {
+      const alert = ALERTS_DATA.find(a => a.id === alertId) || ALERTS_DATA[0];
+      document.getElementById('modalAlertIdTitle').innerText = `Alert #${alert.id}`;
+      document.getElementById('modalAlertType').innerText = `${alert.type} (${alert.category})`;
+      document.getElementById('modalAlertLocation').innerText = alert.location;
+      document.getElementById('modalAlertBus').innerText = `${alert.busId} • Edge Accelerometer Node`;
+      document.getElementById('modalAlertTime').innerText = `${alert.time} IST`;
+      document.getElementById('modalAlertRec').innerText = alert.rec;
+      document.getElementById('alertDetailModal').classList.add('active');
+    }
+
+    function closeAlertModal() {
+      document.getElementById('alertDetailModal').classList.remove('active');
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === 'alertDetailModal') closeAlertModal();
+    }
+
+    function resolveModalAlert() {
+      alert('Action Dispatched: Municipal Pothole Repair Unit #PUN-PW-04 allocated. ETA to site: 22 mins.');
+      closeAlertModal();
+    }
+
+    /* 7. REAL-TIME SIMULATION & LIVE CLOCK */
+    function startSimulationClock() {
+      setInterval(() => {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-IN', { hour12: false }) + ' IST';
+        document.getElementById('liveIstClock').innerText = timeStr;
+      }, 1000);
+
+      // Jitter bus coordinates slightly to simulate motion
+      setInterval(() => {
+        BUSES_DATA.forEach(bus => {
+          bus.lat += (Math.random() - 0.5) * 0.0004;
+          bus.lng += (Math.random() - 0.5) * 0.0004;
+          bus.speed = Math.max(12, Math.min(48, Math.round(bus.speed + (Math.random() - 0.5) * 3)));
+        });
+        if (dashboardMap) renderMapMarkers(dashboardMap);
+        if (fullGisMap) renderMapMarkers(fullGisMap);
+      }, 4000);
+    }
+
+    function simulateDataSync() {
+      const activeEl = document.getElementById('kpiActiveVehicles');
+      activeEl.innerText = "128";
+      alert('Live Telemetry Handshake: 128 mobile units synced with edge server.');
+    }
+
+    /* 8. UI HELPERS & TOGGLES */
+    function toggleSidebarCollapse() {
+      document.getElementById('appSidebar').classList.toggle('collapsed');
+      document.getElementById('appMain').classList.toggle('expanded');
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function toggleNotifDropdown() {
+      document.getElementById('notifDropdown').classList.toggle('active');
+    }
+
+    function handleGlobalSearch(e) {
+      if (e.key === 'Enter') {
+        const query = e.target.value.toLowerCase();
+        alert(`Searching UTIS fleet and GIS registry for: "${query}"...`);
+      }
+    }
+
+    function filterFleetTable() {
+      const search = document.getElementById('fleetSearchInput').value.toLowerCase();
+      const status = document.getElementById('fleetStatusFilter').value;
+      const rows = document.querySelectorAll('#liveFleetTableBody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const matchesSearch = text.includes(search);
+        const matchesStatus = status === 'all' || text.includes(status.toLowerCase());
+        row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+      });
+    }
+
+    function focusBusOnMap(busId) {
+      switchView('dashboard');
+      const bus = BUSES_DATA.find(b => b.id === busId);
+      if (bus && dashboardMap) {
+        dashboardMap.setView([bus.lat, bus.lng], 16);
+      }
+    }
+
+    function setMapLayer(layer, btn) {
+      document.querySelectorAll('.pill-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function setFullMapLayer(layer, btn) {
+      btn.parentElement.querySelectorAll('.pill-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function downloadSampleReport(filename) {
+      const csvContent = "data:text/csv;charset=utf-8,VehicleID,Route,Speed,RoadQuality,AQI,Status\nBUS-1024,Route 12,24,Critical,82,Delayed\nBUS-1025,Route 12,38,Good,80,Active\nBUS-1042,Route 08,32,Good,75,Active\n";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // ON DOM LOAD
+    window.addEventListener('DOMContentLoaded', () => {
+      initDashboardMap();
+      initCharts();
+      populateTables();
+      startSimulationClock();
+    });
+  </script>
+</body>
+
+</html>

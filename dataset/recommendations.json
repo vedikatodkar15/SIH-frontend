@@ -1,0 +1,100 @@
+{
+  "recommendations": [
+    {
+      "id": "REC-01",
+      "type": "DISPATCH_STANDBY",
+      "title": "Deploy 2 Standby E-Buses to Route 12",
+      "priority": "HIGH",
+      "status": "PENDING_APPROVAL",
+      "targetRoute": "12",
+      "depotSource": "Shivaji Nagar Central Depot",
+      "busesToDispatch": ["BUS-1210 (Standby)", "BUS-1211 (Standby)"],
+      "confidenceScore": 94.2,
+      "impact": {
+        "travelTimeReduction": "42 min aggregate delay prevented",
+        "passengerWaitTimeSavings": "18.5 passenger-hours saved",
+        "loadRelief": "Occupancy reduced from 91% to 64%"
+      },
+      "explanationSteps": [
+        {
+          "step": 1,
+          "title": "Passenger Demand Surge Detected",
+          "evidence": "Smart ticketing AFC tap-ins at SPPU University Road show +34% influx over baseline (850 projected passengers)."
+        },
+        {
+          "step": 2,
+          "title": "Fleet Saturation & Overcrowding",
+          "evidence": "Active buses on Route 12 report 91% average onboard occupancy; passenger comfort threshold breached."
+        },
+        {
+          "step": 3,
+          "title": "Predicted Downstream Bottleneck",
+          "evidence": "Traffic sensor computer-vision feed anticipates 14 min delays at Sancheti Chowk within the next 20 minutes."
+        },
+        {
+          "step": 4,
+          "title": "Optimal Proximity Asset Available",
+          "evidence": "Shivaji Nagar Depot (0.8 km away) has 2 charged standby e-buses ready for immediate dispatch."
+        }
+      ]
+    },
+    {
+      "id": "REC-02",
+      "type": "DYNAMIC_REROUTING",
+      "title": "Activate Route 12B Bypass via Senapati Bapat Road",
+      "priority": "HIGH",
+      "status": "APPROVED",
+      "targetRoute": "12",
+      "alternateRoute": "12B",
+      "confidenceScore": 96.8,
+      "impact": {
+        "travelTimeReduction": "14 minutes per trip saved",
+        "congestionAvoidance": "Avoids Sancheti Chowk 84% choke point",
+        "carbonAvoided": "6.6 kg CO2 per round trip"
+      },
+      "explanationSteps": [
+        {
+          "step": 1,
+          "title": "Congestion Threshold Exceeded",
+          "evidence": "Average speed on Sancheti Chowk corridor dropped below 12 km/h."
+        },
+        {
+          "step": 2,
+          "title": "Corridor Geometry Feasibility",
+          "evidence": "Senapati Bapat Road clear with 34 km/h free-flow transit speed."
+        },
+        {
+          "step": 3,
+          "title": "Commuter Stop Coverage",
+          "evidence": "Bypass serves major student interchange while preserving origin and destination."
+        }
+      ]
+    },
+    {
+      "id": "REC-03",
+      "type": "PREDICTIVE_MAINTENANCE",
+      "title": "Overnight Regenerative Brake Inspection for BUS-1024",
+      "priority": "MEDIUM",
+      "status": "SCHEDULED",
+      "busId": "BUS-1024",
+      "regNo": "MH-12-RN-4024",
+      "confidenceScore": 89.5,
+      "impact": {
+        "breakdownPrevention": "Prevents potential in-service brake locking",
+        "maintenanceCostSavings": "₹ 24,000 preventative vs emergency towing"
+      },
+      "explanationSteps": [
+        {
+          "step": 1,
+          "title": "Telemetry Thermal Anomaly",
+          "evidence": "Brake pad sensor temperature trending +12% above mean over past 72 operational hours."
+        },
+        {
+          "step": 2,
+          "title": "Preventive Window Alignment",
+          "evidence": "Bus scheduled for shift-end return to Shivaji Nagar depot at 21:30 IST."
+        }
+      ]
+    }
+  ]
+}

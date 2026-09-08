@@ -1,0 +1,84 @@
+{
+  "summary": {
+    "index": 78,
+    "status": "High Peak Demand",
+    "totalWaitingPassengers": 1314,
+    "topSurgeSector": "University Road / FC Road Corridor",
+    "peakTimeWindow": "17:30 - 19:45 IST",
+    "standbyDispatchedToday": 14
+  },
+  "sectors": [
+    {
+      "sector": "University Road (SPPU Campus)",
+      "currentDemand": 610,
+      "predictedDemand": 850,
+      "surgePercentage": "+39.3%",
+      "status": "VERY HIGH",
+      "recommendedBuses": 6,
+      "availableBuses": 4,
+      "deficit": 2,
+      "routesImpacted": ["12", "12B", "101"],
+      "action": "Deploy 2 standby electric buses from Shivaji Nagar Depot"
+    },
+    {
+      "sector": "Swargate Central Bus Hub",
+      "currentDemand": 720,
+      "predictedDemand": 910,
+      "surgePercentage": "+26.4%",
+      "status": "VERY HIGH",
+      "recommendedBuses": 8,
+      "availableBuses": 7,
+      "deficit": 1,
+      "routesImpacted": ["45", "8"],
+      "action": "Deploy 1 feeder mini-bus from Swargate Depot"
+    },
+    {
+      "sector": "Pune Railway Station Hub",
+      "currentDemand": 580,
+      "predictedDemand": 690,
+      "surgePercentage": "+19.0%",
+      "status": "HIGH",
+      "recommendedBuses": 7,
+      "availableBuses": 7,
+      "deficit": 0,
+      "routesImpacted": ["12", "12B", "8", "101"],
+      "action": "Balanced, maintain 5-minute headway"
+    },
+    {
+      "sector": "Viman Nagar IT Corridor",
+      "currentDemand": 440,
+      "predictedDemand": 590,
+      "surgePercentage": "+34.1%",
+      "status": "HIGH",
+      "recommendedBuses": 6,
+      "availableBuses": 5,
+      "deficit": 1,
+      "routesImpacted": ["101"],
+      "action": "Short-loop Route 101 service from Yerawada"
+    },
+    {
+      "sector": "Hadapsar Industrial Belt",
+      "currentDemand": 380,
+      "predictedDemand": 450,
+      "surgePercentage": "+18.4%",
+      "status": "MEDIUM",
+      "recommendedBuses": 5,
+      "availableBuses": 5,
+      "deficit": 0,
+      "routesImpacted": ["45"],
+      "action": "Normal schedule sufficient"
+    }
+  ],
+  "hourlyTrend": [
+    { "time": "06:00", "actual": 240, "predicted": 250 },
+    { "time": "08:00", "actual": 680, "predicted": 710 },
+    { "time": "10:00", "actual": 920, "predicted": 890 },
+    { "time": "12:00", "actual": 510, "predicted": 530 },
+    { "time": "14:00", "actual": 480, "predicted": 500 },
+    { "time": "16:00", "actual": 750, "predicted": 780 },
+    { "time": "17:30", "actual": 1120, "predicted": 1280 },
+    { "time": "19:00", "actual": 1050, "predicted": 1180 },
+    { "time": "21:00", "actual": 620, "predicted": 640 },
+    { "time": "23:00", "actual": 210, "predicted": 190 }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "stops": [
+    { "id": "ST01", "name": "Pune Railway Station", "lat": 18.5284, "lng": 73.8744, "routes": ["12", "12B", "8", "101"], "demand": "VERY HIGH", "waitingPassengers": 142 },
+    { "id": "ST02", "name": "Shivaji Nagar Bus Terminus", "lat": 18.5314, "lng": 73.8446, "routes": ["12", "12B", "45", "101"], "demand": "HIGH", "waitingPassengers": 98 },
+    { "id": "ST03", "name": "FC Road (Fergusson College)", "lat": 18.5218, "lng": 73.8412, "routes": ["12", "12B"], "demand": "HIGH", "waitingPassengers": 85 },
+    { "id": "ST04", "name": "Deccan Gymkhana", "lat": 18.5167, "lng": 73.8415, "routes": ["12", "45"], "demand": "MEDIUM", "waitingPassengers": 64 },
+    { "id": "ST05", "name": "University Road (Savitribai Phule)", "lat": 18.5529, "lng": 73.8260, "routes": ["12", "12B", "101"], "demand": "VERY HIGH", "waitingPassengers": 180 },
+    { "id": "ST06", "name": "Swargate Central Bus Hub", "lat": 18.5018, "lng": 73.8580, "routes": ["45", "8"], "demand": "VERY HIGH", "waitingPassengers": 210 },
+    { "id": "ST07", "name": "Hadapsar Depot / Gadital", "lat": 18.5020, "lng": 73.9270, "routes": ["45"], "demand": "HIGH", "waitingPassengers": 115 },
+    { "id": "ST08", "name": "Main Junction (Sancheti Chowk)", "lat": 18.5280, "lng": 73.8510, "routes": ["12", "101"], "demand": "CRITICAL", "waitingPassengers": 160 },
+    { "id": "ST09", "name": "Kothrud Stand (Paud Road)", "lat": 18.5074, "lng": 73.8077, "routes": ["101"], "demand": "MEDIUM", "waitingPassengers": 72 },
+    { "id": "ST10", "name": "Viman Nagar (Symbiosis Corner)", "lat": 18.5679, "lng": 73.9143, "routes": ["101"], "demand": "HIGH", "waitingPassengers": 130 },
+    { "id": "ST11", "name": "Katraj Snake Park Junction", "lat": 18.4575, "lng": 73.8677, "routes": ["8"], "demand": "MEDIUM", "waitingPassengers": 58 }
+  ],
+  "depots": [
+    { "id": "DP01", "name": "Shivaji Nagar Central Depot", "lat": 18.5340, "lng": 73.8400, "capacity": 220, "availableStandby": 14 },
+    { "id": "DP02", "name": "Swargate Terminal Depot", "lat": 18.4980, "lng": 73.8560, "capacity": 260, "availableStandby": 9 },
+    { "id": "DP03", "name": "Hadapsar Workshop Depot", "lat": 18.5040, "lng": 73.9310, "capacity": 180, "availableStandby": 6 },
+    { "id": "DP04", "name": "Kothrud Depot", "lat": 18.5050, "lng": 73.8040, "capacity": 140, "availableStandby": 8 }
+  ]
+}

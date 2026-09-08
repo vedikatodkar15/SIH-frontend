@@ -1,0 +1,96 @@
+{
+  "summary": {
+    "citywideCongestionIndex": "67%",
+    "activeBottlenecks": 4,
+    "avgFleetSpeed": "31.4 km/h",
+    "delayedCorridors": ["Route 12 (Sancheti Chowk)", "Route 45 (Hadapsar Gadital)"]
+  },
+  "bottlenecks": [
+    {
+      "id": "BN-01",
+      "name": "Main Junction (Sancheti Chowk)",
+      "corridor": "Shivaji Nagar to Deccan / University Rd",
+      "severity": "CRITICAL",
+      "currentTraffic": "High",
+      "predictedTraffic": "Severe",
+      "avgSpeed": "11 km/h",
+      "normalSpeed": "35 km/h",
+      "speedDrop": "-68%",
+      "cause": "Flyover lane restriction & metro pillar alignment",
+      "recommendedBypass": "Route 12B via Senapati Bapat (SB) Road",
+      "timeSavedViaBypass": "14 minutes",
+      "coordinates": [18.5280, 73.8510]
+    },
+    {
+      "id": "BN-02",
+      "name": "Hadapsar Gadital Flyover Approach",
+      "corridor": "Swargate to Hadapsar",
+      "severity": "HIGH",
+      "currentTraffic": "Medium",
+      "predictedTraffic": "High",
+      "avgSpeed": "16 km/h",
+      "normalSpeed": "40 km/h",
+      "speedDrop": "-60%",
+      "cause": "Evening market spillover and intercity bus docking",
+      "recommendedBypass": "Magarpatta South Ring Feeder",
+      "timeSavedViaBypass": "9 minutes",
+      "coordinates": [18.5020, 73.9270]
+    },
+    {
+      "id": "BN-03",
+      "name": "Deccan Gymkhana Bus Stop Belt",
+      "corridor": "FC Road to Deccan",
+      "severity": "MODERATE",
+      "currentTraffic": "Medium",
+      "predictedTraffic": "Medium",
+      "avgSpeed": "22 km/h",
+      "normalSpeed": "35 km/h",
+      "speedDrop": "-37%",
+      "cause": "Pedestrian signal cycle extension",
+      "recommendedBypass": "Jangali Maharaj (JM) Road one-way loop",
+      "timeSavedViaBypass": "5 minutes",
+      "coordinates": [18.5167, 73.8415]
+    },
+    {
+      "id": "BN-04",
+      "name": "Katraj Ghat Entry",
+      "corridor": "Katraj to Swargate",
+      "severity": "LOW",
+      "currentTraffic": "Low",
+      "predictedTraffic": "Medium",
+      "avgSpeed": "28 km/h",
+      "normalSpeed": "45 km/h",
+      "speedDrop": "-37%",
+      "cause": "Truck lane merging",
+      "recommendedBypass": "Old Tunnel Corridor",
+      "timeSavedViaBypass": "3 minutes",
+      "coordinates": [18.4575, 73.8677]
+    }
+  ],
+  "rerouteSimulation": {
+    "originalRoute": {
+      "name": "Route 12 (Via Sancheti Chowk)",
+      "distance": "9.4 km",
+      "estimatedTravelTime": "38 min",
+      "congestionLevel": "Severe (84%)",
+      "avgSpeed": "14.8 km/h",
+      "co2Emission": "18.2 kg",
+      "riskScore": 88
+    },
+    "dynamicBypassRoute": {
+      "name": "Route 12B (Via Senapati Bapat Road AI Bypass)",
+      "distance": "10.1 km",
+      "estimatedTravelTime": "24 min",
+      "congestionLevel": "Low (22%)",
+      "avgSpeed": "32.4 km/h",
+      "co2Emission": "11.6 kg",
+      "riskScore": 18
+    },
+    "differential": {
+      "travelTimeSaved": "14 minutes (-36.8%)",
+      "punctualityGain": "+38%",
+      "fuelCo2Saved": "36.2% reduction",
+      "commuterSatisfaction": "+4.2/5"
+    }
+  }
+}

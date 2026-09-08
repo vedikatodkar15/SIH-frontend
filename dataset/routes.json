@@ -1,0 +1,91 @@
+[
+  {
+    "id": "12",
+    "code": "R-12",
+    "name": "Pune Station ⇄ University Road via Sancheti Chowk",
+    "status": "Congested",
+    "delayMin": 14,
+    "busesActive": 16,
+    "distanceKm": 9.4,
+    "avgTripTime": "38 min",
+    "color": "#DC2626",
+    "waypoints": [
+      [18.5284, 73.8744],
+      [18.5280, 73.8510],
+      [18.5314, 73.8446],
+      [18.5218, 73.8412],
+      [18.5360, 73.8340],
+      [18.5529, 73.8260]
+    ]
+  },
+  {
+    "id": "12B",
+    "code": "R-12B (AI Alt)",
+    "name": "Pune Station ⇄ University Road via SB Road (AI Dynamic Bypass)",
+    "status": "Smooth",
+    "delayMin": 4,
+    "busesActive": 6,
+    "distanceKm": 10.1,
+    "avgTripTime": "24 min",
+    "color": "#10B981",
+    "waypoints": [
+      [18.5284, 73.8744],
+      [18.5230, 73.8580],
+      [18.5167, 73.8415],
+      [18.5330, 73.8310],
+      [18.5529, 73.8260]
+    ]
+  },
+  {
+    "id": "45",
+    "code": "R-45",
+    "name": "Swargate ⇄ Hadapsar Gadital",
+    "status": "Moderate",
+    "delayMin": 7,
+    "busesActive": 22,
+    "distanceKm": 11.2,
+    "avgTripTime": "34 min",
+    "color": "#F59E0B",
+    "waypoints": [
+      [18.5018, 73.8580],
+      [18.5050, 73.8750],
+      [18.5040, 73.9010],
+      [18.5020, 73.9270]
+    ]
+  },
+  {
+    "id": "101",
+    "code": "R-101",
+    "name": "Kothrud Stand ⇄ Viman Nagar",
+    "status": "Normal",
+    "delayMin": 3,
+    "busesActive": 28,
+    "distanceKm": 18.6,
+    "avgTripTime": "52 min",
+    "color": "#2563EB",
+    "waypoints": [
+      [18.5074, 73.8077],
+      [18.5167, 73.8415],
+      [18.5280, 73.8510],
+      [18.5430, 73.8820],
+      [18.5679, 73.9143]
+    ]
+  },
+  {
+    "id": "8",
+    "code": "R-8",
+    "name": "Katraj Hub ⇄ Pune Railway Station",
+    "status": "Normal",
+    "delayMin": 5,
+    "busesActive": 18,
+    "distanceKm": 12.0,
+    "avgTripTime": "40 min",
+    "color": "#059669",
+    "waypoints": [
+      [18.4575, 73.8677],
+      [18.4810, 73.8620],
+      [18.5018, 73.8580],
+      [18.5284, 73.8744]
+    ]
+  }
+]

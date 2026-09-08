@@ -1,0 +1,137 @@
+:root {
+  /* Authentic Government of India Digital Identity Tokens */
+  --gov-navy: #0A2540;
+  --gov-navy-dark: #051329;
+  --gov-navy-light: #14355A;
+  --gov-navy-subtle: #1E3A5F;
+  --gov-blue: #1D4ED8;
+  --gov-blue-hover: #1E40AF;
+  --gov-blue-subtle: #EFF6FF;
+  --gov-saffron: #E66E19;
+  --gov-saffron-light: #FFF7ED;
+  --gov-green: #138808;
+  --gov-green-light: #F0FDF4;
+  --gov-ashoka: #000080;
+
+  /* Neutrals & Surfaces */
+  --bg-app: #F4F6F9;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #F8FAFC;
+  --border-color: #CBD5E1;
+  --border-light: #E2E8F0;
+  --border-dark: #94A3B8;
+
+  /* Typography */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* Operational Status Colors */
+  --status-ontime: #059669;
+  --status-ontime-bg: #ECFDF5;
+  --status-delayed: #DC2626;
+  --status-delayed-bg: #FEF2F2;
+  --status-critical: #991B1B;
+  --status-critical-bg: #FEE2E2;
+  --status-warning: #D97706;
+  --status-warning-bg: #FFFBEB;
+  --status-info: #2563EB;
+  --status-info-bg: #EFF6FF;
+  --status-maintenance: #7C3AED;
+  --status-maintenance-bg: #F5F3FF;
+  --status-offline: #475569;
+  --status-offline-bg: #F1F5F9;
+
+  /* Shadows & Radius */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 15px rgba(29, 78, 216, 0.25);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* Base Spacing & Fonts */
+  --font-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-base: 14px;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
+
+/* GIGW Accessibility: Large Font Scale */
+body.font-large {
+  --font-size-base: 16px;
+}
+
+/* GIGW Accessibility: Extra Large Font Scale */
+body.font-xlarge {
+  --font-size-base: 18px;
+}
+
+/* GIGW Accessibility: High Contrast Mode */
+body.high-contrast {
+  --gov-navy: #000000;
+  --gov-navy-dark: #000000;
+  --gov-navy-light: #111111;
+  --bg-app: #000000;
+  --bg-surface: #0A0A0A;
+  --bg-surface-alt: #171717;
+  --border-color: #FFFFFF;
+  --border-light: #E5E5E5;
+  --text-primary: #FFFFFF;
+  --text-secondary: #F5F5F5;
+  --text-muted: #D4D4D4;
+  --text-inverse: #000000;
+
+  --gov-blue: #60A5FA;
+  --gov-blue-subtle: #1E3A8A;
+  --gov-saffron: #FBBF24;
+  --gov-green: #34D399;
+
+  --status-ontime: #34D399;
+  --status-ontime-bg: #064E3B;
+  --status-delayed: #F87171;
+  --status-delayed-bg: #7F1D1D;
+  --status-critical: #EF4444;
+  --status-critical-bg: #991B1B;
+  --status-warning: #FBBF24;
+  --status-warning-bg: #78350F;
+  --status-info: #60A5FA;
+  --status-info-bg: #1E3A8A;
+  --status-maintenance: #C084FC;
+  --status-maintenance-bg: #581C87;
+  --status-offline: #94A3B8;
+  --status-offline-bg: #1E293B;
+}
+
+/* Executive Modern Dark Mode */
+body.dark-mode {
+  --bg-app: #0B132B;
+  --bg-surface: #1C2541;
+  --bg-surface-alt: #131B2E;
+  --border-color: #2E3856;
+  --border-light: #242D45;
+  --border-dark: #475569;
+
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-inverse: #0F172A;
+
+  --gov-navy: #0F172A;
+  --gov-navy-dark: #020617;
+  --gov-navy-light: #1E293B;
+
+  --gov-blue: #3B82F6;
+  --gov-blue-subtle: #1E3A8A;
+
+  --status-ontime-bg: #064E3B;
+  --status-delayed-bg: #7F1D1D;
+  --status-critical-bg: #991B1B;
+  --status-warning-bg: #78350F;
+  --status-info-bg: #1E3A8A;
+  --status-maintenance-bg: #581C87;
+  --status-offline-bg: #1E293B;
+}
