@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, 
   BusFront, 
@@ -12,13 +13,12 @@ import {
   Users, 
   FileText, 
   Server, 
-  ShieldCheck,
-  Activity,
-  Wind
+  ShieldCheck
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
   const { t, buses, alerts, recommendations } = useApp();
+  const { user } = useAuth();
 
   const unresolvedAlertsCount = alerts.filter(a => a.status === 'Active' || a.status === 'Unresolved').length;
   const pendingRecsCount = recommendations.filter(r => r.status === 'PENDING_APPROVAL').length;
@@ -44,8 +44,15 @@ export const Sidebar: React.FC = () => {
   return (
     <aside className="app-sidebar" aria-label="Portal Navigation">
       <div className="sidebar-nav-list">
-        <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-muted)', padding: '6px 12px 2px', textTransform: 'uppercase' }}>
-          MAIN MONITORING
+        <div style={{
+          fontSize: '10.5px',
+          fontWeight: 800,
+          letterSpacing: '0.08em',
+          color: 'var(--text-muted)',
+          padding: '8px 12px 4px',
+          textTransform: 'uppercase'
+        }}>
+          {t('mainMonitoring')}
         </div>
         {mainMonitoringItems.map((item) => {
           const Icon = item.icon;
@@ -57,7 +64,7 @@ export const Sidebar: React.FC = () => {
               end={item.path === '/'}
             >
               <div className="nav-link-content">
-                <Icon size={18} />
+                <Icon size={17} />
                 <span>{item.label}</span>
               </div>
               {item.badge !== undefined && (
@@ -74,8 +81,15 @@ export const Sidebar: React.FC = () => {
           );
         })}
 
-        <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-muted)', padding: '16px 12px 2px', textTransform: 'uppercase' }}>
-          INTELLIGENCE & SYSTEM
+        <div style={{
+          fontSize: '10.5px',
+          fontWeight: 800,
+          letterSpacing: '0.08em',
+          color: 'var(--text-muted)',
+          padding: '16px 12px 4px',
+          textTransform: 'uppercase'
+        }}>
+          {t('intelligenceSystem')}
         </div>
         {intelligenceItems.map((item) => {
           const Icon = item.icon;
@@ -86,7 +100,7 @@ export const Sidebar: React.FC = () => {
               className={({ isActive }) => `nav-item-link ${isActive ? 'active' : ''}`}
             >
               <div className="nav-link-content">
-                <Icon size={18} />
+                <Icon size={17} />
                 <span>{item.label}</span>
               </div>
               {item.badge !== undefined && (
@@ -101,3 +115,5 @@ export const Sidebar: React.FC = () => {
     </aside>
   );
 };
+
+export default Sidebar;

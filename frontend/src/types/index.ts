@@ -267,6 +267,7 @@ export interface DecisionRecommendation {
   actionLabel: string;
   status: 'Pending' | 'Approved' | 'Dispatched';
   detectingVehiclesCount: number;
+  whyFactors?: string[];
 }
 
 export interface FleetUnit {
@@ -304,3 +305,25 @@ export interface RecentActivityItem {
   vehicleId?: string;
   location?: string;
 }
+
+export type UserRole = 
+  | 'admin'
+  | 'transport_officer'
+  | 'fleet_manager'
+  | 'traffic_officer'
+  | 'depot_manager'
+  | 'analyst';
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  role: UserRole;
+  roleTitle: string;
+  department: string;
+  badgeId: string;
+  depotAssigned: string;
+  avatarInitials: string;
+  email: string;
+  permissions: string[];
+}
+

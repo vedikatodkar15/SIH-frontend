@@ -243,37 +243,53 @@ export const DECISION_RECOMMENDATIONS: DecisionRecommendation[] = [
     id: "REC-01",
     order: 1,
     title: "Inspect road damage in Sector 4",
-    reason: "Repeated observations reported by multiple vehicles.",
+    reason: "Repeated observations reported by multiple public transport units.",
     severity: "high",
     location: "Sector 4, Shivaji Nagar",
     suggestedAction: "Dispatch Municipal PWD Pothole Repair Unit for immediate cold-mix patch.",
     actionLabel: "Dispatch PWD Gang",
     status: "Pending",
-    detectingVehiclesCount: 4
+    detectingVehiclesCount: 4,
+    whyFactors: [
+      "4 active buses registered high vertical IMU vibration spikes (>2.8g)",
+      "Pothole depth measured ~8.2cm with severe rim damage risk",
+      "Transit velocity reduced by 18 km/h on approach"
+    ]
   },
   {
     id: "REC-02",
     order: 2,
-    title: "Monitor congestion near Main Road",
-    reason: "Traffic density increased during the monitored period.",
-    severity: "medium",
-    location: "Main Road / Sancheti Chowk",
-    suggestedAction: "Coordinate with Traffic Police to extend green signal phase by 15s or activate Route 12B bypass.",
-    actionLabel: "Adjust Signal Timing",
+    title: "Deploy 2 additional buses on Route 12",
+    reason: "Passenger demand increased while traffic delay detected at bottleneck.",
+    severity: "high",
+    location: "Route 12 (Pune Stn - University Road)",
+    suggestedAction: "Inject 2 idle electric standby buses from Swargate Depot into Route 12 service.",
+    actionLabel: "Deploy 2 Standby Buses",
     status: "Pending",
-    detectingVehiclesCount: 6
+    detectingVehiclesCount: 6,
+    whyFactors: [
+      "Passenger demand increased (+42% surge at Swargate and FC Road hubs)",
+      "Current bus capacity is insufficient for waiting commuters",
+      "Traffic delay detected at Sancheti Chowk (14 minutes delay)",
+      "Standby electric buses are available at Swargate Central Depot"
+    ]
   },
   {
     id: "REC-03",
     order: 3,
     title: "Schedule infrastructure inspection in Zone 2",
-    reason: "Multiple observations indicate possible infrastructure damage.",
+    reason: "Multiple edge vision observations indicate physical infrastructure damage.",
     severity: "high",
     location: "Zone 2, Hadapsar Flyover",
     suggestedAction: "Issue maintenance ticket to Highway Authority for median barrier restoration.",
     actionLabel: "Issue Work Order",
     status: "Pending",
-    detectingVehiclesCount: 3
+    detectingVehiclesCount: 3,
+    whyFactors: [
+      "Vision detection node flagged 12m bent metal guard rail",
+      "Lateral collision hazard for passing transit vehicles",
+      "Structural integrity inspection required by civil engineering team"
+    ]
   }
 ];
 

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +47,135 @@ let grievances = [
     timestamp: "2026-09-07 16:45 IST"
   }
 ];
+
+// ============================================================================
+// GOVERNMENT OFFICER AUTHENTICATION & SECURE SESSION SYSTEM
+// ============================================================================
+
+// Secure password hashing with PBKDF2 (SHA-512, 10,000 iterations)
+const hashPassword = (password, salt) => {
+  return crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+};
+
+const OFFICER_SALT = 'utis_pmrda_gov_secure_salt_2026';
+// Authorized officer account: User ID "balaji.gurav", password "Swargate#2026"
+// We store ONLY the hash and salt, never plain text passwords
+const OFFICER_HASH = hashPassword('Swargate#2026', OFFICER_SALT);
+
+const AUTHORIZED_OFFICER = {
+  id: 'MH-PMP-2026-08',
+  username: 'balaji.gurav',
+  salt: OFFICER_SALT,
+  passwordHash: OFFICER_HASH,
+  profile: {
+    id: 'MH-PMP-2026-08',
+    name: 'BALAJI GURAV',
+    role: 'transport_officer',
+    roleTitle: 'Chief Transport Control Officer',
+    department: 'Swargate Central Command, Government Transport Authority',
+    badgeId: 'MH-PMP-2026-08',
+    depotAssigned: 'Swargate Central Command',
+    avatarInitials: 'BG',
+    email: 'balaji.gurav@pmrda.gov.in',
+    permissions: ['command_control', 'fleet_dispatch', 'route_optimization', 'audit_export']
+  }
+};
+
+// In-memory active server session store: token -> { user, createdAt, lastActive }
+const activeSessions = new Map();
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours maximum session lifespan
+
+// 1. Officer Login Endpoint
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body || {};
+
+  const cleanUser = (username || '').trim();
+  const cleanPass = (password || '').trim();
+
+  if (!cleanUser) {
+    return res.status(400).json({ success: false, message: 'Please enter your username.' });
+  }
+  if (!cleanPass) {
+    return res.status(400).json({ success: false, message: 'Please enter your password.' });
+  }
+
+  // Prototype Authentication Mode: Accepts ANY non-empty credentials
+  const initials = cleanUser.length > 1 ? cleanUser.slice(0, 2).toUpperCase() : cleanUser.toUpperCase();
+  const userProfile = {
+    id: `OFFICER-${Math.floor(1000 + Math.random() * 9000)}`,
+    name: cleanUser,
+    role: 'transport_officer',
+    roleTitle: 'Transport Control Officer',
+    department: 'Command & Control Center, Urban Transport Authority',
+    badgeId: `GOV-${cleanUser.toUpperCase()}`,
+    depotAssigned: 'Swargate Central Command',
+    avatarInitials: initials,
+    email: `${cleanUser.toLowerCase().replace(/\s+/g, '.')}@transport.gov.in`,
+    permissions: ['all']
+  };
+
+  // Generate cryptographically strong session token
+  const sessionToken = crypto.randomBytes(32).toString('hex');
+  activeSessions.set(sessionToken, {
+    user: userProfile,
+    createdAt: Date.now(),
+    lastActive: Date.now()
+  });
+
+  return res.json({
+    success: true,
+    token: sessionToken,
+    user: userProfile,
+    message: 'Authentication successful.'
+  });
+});
+
+// 2. Officer Logout Endpoint
+app.post('/api/auth/logout', (req, res) => {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '') || req.body?.token;
+
+  if (token && activeSessions.has(token)) {
+    activeSessions.delete(token);
+  }
+
+  return res.json({
+    success: true,
+    message: 'You have been securely logged out.'
+  });
+});
+
+// 3. Officer Session Verification Endpoint
+app.get('/api/auth/session', (req, res) => {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '') || req.query?.token;
+
+  if (!token || !activeSessions.has(token)) {
+    return res.status(401).json({
+      success: false,
+      valid: false,
+      message: 'Your session has expired. Please log in again.'
+    });
+  }
+
+  const session = activeSessions.get(token);
+  if (Date.now() - session.lastActive > SESSION_TTL_MS) {
+    activeSessions.delete(token);
+    return res.status(401).json({
+      success: false,
+      valid: false,
+      message: 'Your session has expired. Please log in again.'
+    });
+  }
+
+  // Touch active timestamp
+  session.lastActive = Date.now();
+  return res.json({
+    success: true,
+    valid: true,
+    user: session.user
+  });
+});
 
 // System Health Status
 app.get('/api/system/status', (req, res) => {

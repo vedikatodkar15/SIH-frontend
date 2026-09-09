@@ -43,7 +43,13 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(() => {
+    try {
+      const saved = sessionStorage.getItem('utis_language');
+      if (saved === 'en' || saved === 'hi' || saved === 'mr') return saved as Language;
+    } catch {}
+    return 'en';
+  });
   const [fontSize, setFontSizeState] = useState<FontSizeScale>('normal');
   const [highContrast, setHighContrast] = useState<boolean>(false);
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
@@ -119,6 +125,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
+    try {
+      sessionStorage.setItem('utis_language', lang);
+    } catch {
+      // Ignore storage errors
+    }
   };
 
   const toggleSimulation = () => {
@@ -181,8 +192,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const t = (key: keyof typeof translations.en): string => {
-    const dict = translations[language] || translations.en;
-    return dict[key] || translations.en[key] || key;
+    const dict = (translations[language] || translations.en) as Record<string, string>;
+    return dict[key] || (translations.en as Record<string, string>)[key] || (key as string);
   };
 
   return (

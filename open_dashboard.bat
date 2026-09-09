@@ -1,4 +1,4 @@
 @echo off
 echo Starting Urban Transport Intelligence System...
-start "" "%~dp0index.html"
+start "" "%~dp0new1.html"
 exit

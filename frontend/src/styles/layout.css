@@ -1,9 +1,9 @@
 /* ==========================================================================
-   NEXTADMIN & GOVERNMENT DESIGN SYSTEM LAYOUT
+   URBAN TRANSPORT INTELLIGENCE SYSTEM — GOVERNMENT COMMAND CENTER LAYOUT
    ========================================================================== */
 
-/* 1. TOP STRIP (Tricolor + SIH Prototype) */
-.sih-top-strip {
+/* 1. TOP ADMINISTRATIVE STRIP */
+.gov-top-strip {
   background: linear-gradient(90deg, #123B63 0%, #1F5A8A 50%, #123B63 100%);
   color: #FFFFFF;
   font-size: 0.76rem;
@@ -15,23 +15,13 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.sih-top-left {
+.gov-top-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.sih-pill-tag {
-  background: #F59E0B;
-  color: #000;
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 1px 7px;
-  border-radius: var(--radius-sm);
-  letter-spacing: 0.5px;
-}
-
-.sih-top-right {
+.gov-top-right {
   display: flex;
   align-items: center;
   gap: 12px;
