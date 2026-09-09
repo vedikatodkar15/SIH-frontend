@@ -1496,6 +1496,16 @@
             <span id="liveIstClock">12:00:00 IST</span>
           </div>
 
+          <!-- Language Selector -->
+          <div style="display: flex; align-items: center; gap: 5px; background: var(--bg-surface-subtle); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px 8px;">
+            <span style="font-size: 13px;">🌐</span>
+            <select id="portalLanguageSelect" onchange="changePortalLanguage(this.value)" style="border: none; background: transparent; font-size: 11px; font-weight: 700; color: var(--text-main); outline: none; cursor: pointer;">
+              <option value="en">English</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="mr">मराठी (Marathi)</option>
+            </select>
+          </div>
+
           <!-- Night/Light Theme Toggle -->
           <button class="action-icon-btn" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode">
             <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1533,16 +1543,43 @@
             </div>
           </div>
 
-          <!-- Officer Profile -->
-          <div class="officer-profile-pill" onclick="switchView('settings')">
-            <div class="officer-avatar">RS</div>
-            <div class="officer-info">
-              <span class="officer-name">Shri R. Sharma</span>
-              <span class="officer-role">Transport Controller</span>
+          <!-- Authenticated Officer Profile with Clean Government Panel -->
+          <div style="position: relative;" id="officerProfileContainer">
+            <div class="officer-profile-pill" onclick="toggleOfficerMenu(event)" title="Officer Profile">
+              <div class="officer-avatar" id="officerAvatarInitials" style="background: #1B3A6F; color: #FFFFFF; font-weight: 800;">OF</div>
+              <div class="officer-info">
+                <span class="officer-name" id="officerDisplayName">Officer</span>
+                <span class="officer-role">Transport Control Officer</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
             </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+
+            <!-- Profile Dropdown -->
+            <div id="officerProfileDropdown" style="display: none; position: absolute; top: 44px; right: 0; width: 280px; background: #FFFFFF; border: 1px solid #D0D5DD; border-radius: 6px; box-shadow: 0 8px 24px rgba(27,58,111,0.18); z-index: 2000; overflow: hidden;">
+              <div style="background: #1B3A6F; color: #FFFFFF; padding: 10px 14px; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;">
+                OFFICER PROFILE
+              </div>
+              <div style="padding: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 14px; border-bottom: 1px solid #EAECF0;">
+                  <div style="font-size: 14px; font-weight: 800; color: #172033;" id="dropdownOfficerName">
+                    Officer
+                  </div>
+                  <div style="font-size: 12px; color: #1B3A6F; font-weight: 700;">
+                    Transport Control Officer
+                  </div>
+                  <div style="font-size: 11.5px; color: #667085; margin-top: 4px; line-height: 1.35;">
+                    Swargate Central Command<br>Government Transport Authority
+                  </div>
+                </div>
+
+                <button onclick="handleOfficerLogout()" style="width: 100%; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; border-radius: 6px; border: 1px solid #FECACA; background-color: #FEF2F2; color: #C62828; font-size: 12px; font-weight: 800; cursor: pointer;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -3060,12 +3097,106 @@
       document.body.removeChild(link);
     }
 
+    function toggleOfficerMenu(e) {
+      if (e) e.stopPropagation();
+      const dd = document.getElementById('officerProfileDropdown');
+      if (dd) {
+        dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+      }
+    }
+
+    function handleOfficerLogout() {
+      sessionStorage.clear();
+      alert('You have been securely logged out.');
+      window.location.reload();
+    }
+
+    document.addEventListener('click', (e) => {
+      const dd = document.getElementById('officerProfileDropdown');
+      const container = document.getElementById('officerProfileContainer');
+      if (dd && container && !container.contains(e.target)) {
+        dd.style.display = 'none';
+      }
+    });
+
+    const LANG_DATA = {
+      en: {
+        dashboard: "Dashboard",
+        fleet: "Live Fleet Monitoring",
+        map: "GIS Command Center",
+        traffic: "Traffic & Flow Velocity",
+        alerts: "Incidents & Control Queue",
+        analytics: "AI Urban Analytics",
+        reports: "Official Government Reports",
+        logout: "Logout",
+        officerRole: "Transport Control Officer"
+      },
+      hi: {
+        dashboard: "डैशबोर्ड",
+        fleet: "लाइव बस बेड़ा",
+        map: "जीआईएस कमान केंद्र",
+        traffic: "यातायात एवं मार्ग",
+        alerts: "घटनाएं एवं अलर्ट",
+        analytics: "एआई विश्लेषण",
+        reports: "शासकीय रिपोर्ट",
+        logout: "लॉगआउट",
+        officerRole: "परिवहन नियंत्रण अधिकारी"
+      },
+      mr: {
+        dashboard: "डॅशबोर्ड",
+        fleet: "थेट वाहतूक ताफा",
+        map: "जीआयएस नियंत्रण केंद्र",
+        traffic: "वाहतूक आणि मार्ग",
+        alerts: "घटना आणि इशारे",
+        analytics: "एआय विश्लेषण",
+        reports: "शासकीय अहवाल",
+        logout: "लॉगआउट",
+        officerRole: "वाहतूक नियंत्रण अधिकारी"
+      }
+    };
+
+    function changePortalLanguage(lang, persist = true) {
+      if (persist) {
+        try { sessionStorage.setItem('utis_language', lang); } catch (e) {}
+      }
+      const dict = LANG_DATA[lang] || LANG_DATA.en;
+      const navDashboard = document.querySelector('[data-view="dashboard"] span, .nav-item-btn:nth-child(1) span');
+      if (navDashboard && dict.dashboard) navDashboard.innerText = dict.dashboard;
+    }
+
+    function initOfficerProfileAndLanguage() {
+      // Check session for authenticated user
+      try {
+        const raw = sessionStorage.getItem('utis_officer_session');
+        if (raw) {
+          const u = JSON.parse(raw);
+          if (u && u.name) {
+            const displayName = document.getElementById('officerDisplayName');
+            const ddName = document.getElementById('dropdownOfficerName');
+            const avatar = document.getElementById('officerAvatarInitials');
+            if (displayName) displayName.innerText = u.name;
+            if (ddName) ddName.innerText = u.name;
+            if (avatar) avatar.innerText = u.avatarInitials || u.name.slice(0, 2).toUpperCase();
+          }
+        }
+      } catch (e) {}
+
+      // Check language
+      try {
+        const savedLang = sessionStorage.getItem('utis_language') || 'en';
+        const langSelect = document.getElementById('portalLanguageSelect');
+        if (langSelect) langSelect.value = savedLang;
+        changePortalLanguage(savedLang, false);
+      } catch (e) {}
+    }
+
     // ON DOM LOAD
     window.addEventListener('DOMContentLoaded', () => {
       initDashboardMap();
       initCharts();
       populateTables();
       startSimulationClock();
+      initOfficerProfileAndLanguage();
     });
   </script>
 </body>

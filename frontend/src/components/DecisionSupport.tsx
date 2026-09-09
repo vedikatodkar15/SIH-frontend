@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { DECISION_RECOMMENDATIONS } from '../data/mockData';
+import { useApp } from '../context/AppContext';
 import { ShieldCheck, CheckCircle2, ArrowRight, Sparkles, Building, AlertCircle } from 'lucide-react';
 import { DecisionRecommendation } from '../types';
 
 export const DecisionSupport: React.FC = () => {
+  const { language, t } = useApp();
   const [recommendations, setRecommendations] = useState<DecisionRecommendation[]>(DECISION_RECOMMENDATIONS);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
@@ -48,7 +50,7 @@ export const DecisionSupport: React.FC = () => {
               color: 'var(--text-primary)',
               margin: 0
             }}>
-              Recommended Actions
+              {t('recommendationsTitle')}
             </h2>
             <span style={{
               fontSize: '10px',
@@ -63,12 +65,12 @@ export const DecisionSupport: React.FC = () => {
             </span>
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-            Operational priorities synthesized for municipal civil departments and transport authorities
+            {t('recommendationsSub')}
           </div>
         </div>
 
         <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-          Advisory only • Final authority remains with executive officers
+          {t('advisoryNotice')}
         </div>
       </div>
 
@@ -90,7 +92,7 @@ export const DecisionSupport: React.FC = () => {
         </div>
       )}
 
-      {/* 3 Numbered Recommendation Cards matching Section 13 */}
+      {/* 3 Numbered Recommendation Cards with clear WHY factors */}
       <div style={{
         padding: '16px 18px',
         display: 'flex',
@@ -133,25 +135,52 @@ export const DecisionSupport: React.FC = () => {
                   {rec.order}
                 </div>
 
-                <div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--gov-blue)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                    {language === 'hi' ? 'अनुशंसा (RECOMMENDATION)' : 'RECOMMENDATION'}
+                  </div>
                   <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
                     {rec.title}
                   </div>
 
+                  {/* Clear WHY? section with explanation factors as requested in requirement 20 */}
                   <div style={{
-                    fontSize: '12px',
-                    color: 'var(--text-secondary)',
-                    marginTop: '4px',
-                    lineHeight: 1.4
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-light)',
+                    borderRadius: '6px'
                   }}>
-                    <strong style={{ color: 'var(--text-muted)' }}>Reason: </strong>
-                    <span>{rec.reason}</span>
+                    <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <span style={{ color: '#D97706', fontWeight: 900 }}>WHY?</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '10px', fontWeight: 600 }}>
+                        ({language === 'hi' ? 'निर्णय के कारण' : 'Analytical Decision Basis'})
+                      </span>
+                    </div>
+                    <ul style={{
+                      margin: 0,
+                      paddingLeft: '16px',
+                      fontSize: '11.5px',
+                      color: 'var(--text-secondary)',
+                      lineHeight: 1.45,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px'
+                    }}>
+                      {rec.whyFactors && rec.whyFactors.length > 0 ? (
+                        rec.whyFactors.map((factor, idx) => (
+                          <li key={idx}><span>{factor}</span></li>
+                        ))
+                      ) : (
+                        <li><span>{rec.reason}</span></li>
+                      )}
+                    </ul>
                   </div>
 
                   <div style={{
                     fontSize: '11px',
                     color: 'var(--text-muted)',
-                    marginTop: '4px',
+                    marginTop: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',

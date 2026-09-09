@@ -44,12 +44,12 @@ export const DataAPIs: React.FC = () => {
   };
 
   const curlSnippet = `curl -X GET "http://localhost:5000/api/buses?route=12" \\
-  -H "Authorization: Bearer UTIS_DEMO_TOKEN_SIH2026" \\
+  -H "Authorization: Bearer UTIS_GOV_SECURE_TOKEN_2026" \\
   -H "Accept: application/json"`;
 
   const jsSnippet = `const response = await fetch('http://localhost:5000/api/buses?route=12', {
   headers: {
-    'Authorization': 'Bearer UTIS_DEMO_TOKEN_SIH2026',
+    'Authorization': 'Bearer UTIS_GOV_SECURE_TOKEN_2026',
     'Accept': 'application/json'
   }
 });
@@ -60,7 +60,7 @@ console.log('Active Fleet Telemetry:', data.data);`;
 
 url = "http://localhost:5000/api/buses"
 params = {"route": "12"}
-headers = {"Authorization": "Bearer UTIS_DEMO_TOKEN_SIH2026"}
+headers = {"Authorization": "Bearer UTIS_GOV_SECURE_TOKEN_2026"}
 
 res = requests.get(url, params=params, headers=headers)
 fleet_data = res.json()["data"]

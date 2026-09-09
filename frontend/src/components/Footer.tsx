@@ -28,8 +28,8 @@ export const Footer: React.FC = () => {
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
             AI-Powered Mobile Urban Intelligence Platform Using Public Transport Fleet
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--gov-blue)', fontWeight: 700, marginTop: '3px' }}>
-            Prototype | Smart India Hackathon 2026
+          <div style={{ fontSize: '10px', color: 'var(--gov-navy)', fontWeight: 700, marginTop: '3px' }}>
+            Ministry of Housing and Urban Affairs • National Urban Transport Mission
           </div>
         </div>
 

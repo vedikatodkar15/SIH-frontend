@@ -1,24 +1,32 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
+import { formatNumber, formatPercent } from '../utils/formatters';
 import { 
   BusFront, 
-  Database, 
   Activity, 
+  Clock, 
   AlertTriangle, 
-  AlertOctagon, 
-  MapPin,
-  TrendingUp,
-  TrendingDown
+  Users, 
+  Wrench, 
+  Building2, 
+  Zap,
+  TrendingUp, 
+  TrendingDown,
+  ArrowRight
 } from 'lucide-react';
 
 interface KPICardItemProps {
   label: string;
-  value: string | number;
+  value: string;
   subtext: string;
   icon: React.ComponentType<{ size?: number; style?: React.CSSProperties; className?: string }>;
   badgeBg: string;
   badgeColor: string;
   trendText: string;
   trendPositive: boolean;
+  onViewDetails?: () => void;
+  viewDetailsLabel: string;
 }
 
 const KPICardItem: React.FC<KPICardItemProps> = ({
@@ -29,7 +37,9 @@ const KPICardItem: React.FC<KPICardItemProps> = ({
   badgeBg,
   badgeColor,
   trendText,
-  trendPositive
+  trendPositive,
+  onViewDetails,
+  viewDetailsLabel
 }) => {
   return (
     <div style={{
@@ -44,17 +54,26 @@ const KPICardItem: React.FC<KPICardItemProps> = ({
       position: 'relative',
       minWidth: 0,
       transition: 'transform 0.15s ease, box-shadow 0.15s ease'
-    }}>
-      {/* Top row: Icon Badge + Trend Pill */}
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-2px)';
+      e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.06)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
+    }}
+    >
+      {/* Top row: Circular Icon Badge + Trend Pill */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '14px'
+        marginBottom: '12px'
       }}>
         <div style={{
-          width: '40px',
-          height: '40px',
+          width: '42px',
+          height: '42px',
           borderRadius: '50%',
           backgroundColor: badgeBg,
           color: badgeColor,
@@ -73,7 +92,7 @@ const KPICardItem: React.FC<KPICardItemProps> = ({
           fontWeight: 700,
           color: trendPositive ? '#059669' : '#DC2626',
           backgroundColor: trendPositive ? '#ECFDF5' : '#FEF2F2',
-          padding: '2px 7px',
+          padding: '2px 8px',
           borderRadius: '9999px',
           border: `1px solid ${trendPositive ? '#A7F3D0' : '#FECACA'}`
         }}>
@@ -89,7 +108,7 @@ const KPICardItem: React.FC<KPICardItemProps> = ({
         color: 'var(--text-primary)',
         letterSpacing: '-0.02em',
         lineHeight: 1.15,
-        marginBottom: '4px'
+        marginBottom: '2px'
       }}>
         {value}
       </div>
@@ -97,124 +116,180 @@ const KPICardItem: React.FC<KPICardItemProps> = ({
       {/* Label */}
       <div style={{
         fontSize: '13px',
-        fontWeight: 600,
+        fontWeight: 700,
         color: 'var(--text-secondary)',
-        marginBottom: '3px',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        lineHeight: 1.25,
+        marginBottom: '4px'
       }}>
         {label}
       </div>
 
-      {/* Supporting small info */}
+      {/* Supporting text */}
       <div style={{
         fontSize: '11px',
         color: 'var(--text-muted)',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        lineHeight: 1.3,
+        marginBottom: '12px'
       }}>
         {subtext}
       </div>
+
+      {/* View Details Action Link */}
+      {onViewDetails && (
+        <div 
+          onClick={onViewDetails}
+          style={{
+            borderTop: '1px solid var(--border-light)',
+            paddingTop: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '11px',
+            fontWeight: 700,
+            color: 'var(--gov-blue)',
+            cursor: 'pointer'
+          }}
+        >
+          <span>{viewDetailsLabel}</span>
+          <ArrowRight size={12} />
+        </div>
+      )}
     </div>
   );
 };
 
-interface KPICardsProps {
-  activeVehicles?: number;
-  dataPointsToday?: string | number;
-  roadConditionPercent?: string;
-  activeAlertsCount?: string | number;
-  issuesDetectedCount?: number;
-  coverageKm?: string;
-}
+export const KPICards: React.FC = () => {
+  const navigate = useNavigate();
+  const { t, language, buses, alerts, demand } = useApp();
 
-export const KPICards: React.FC<KPICardsProps> = ({
-  activeVehicles = 128,
-  dataPointsToday = "24,860",
-  roadConditionPercent = "94% Normal",
-  activeAlertsCount = "07",
-  issuesDetectedCount = 36,
-  coverageKm = "82 km"
-}) => {
+  const totalBuses = 1250;
+  const activeCount = buses.filter(b => b.status !== 'Offline' && b.status !== 'Maintenance').length || 1087;
+  const onTimeCount = buses.filter(b => b.status === 'On Time').length || 942;
+  const delayedCount = buses.filter(b => b.status === 'Delayed').length || 145;
+  const criticalCount = alerts.filter(a => a.status !== 'Resolved').length || 7;
+  const maintenanceCount = 112;
+
+  const onTimePercent = Math.round((onTimeCount / (onTimeCount + delayedCount || 1)) * 100);
+
   return (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-      gap: '14px'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+      gap: '16px'
     }}>
-      {/* 1. Active Vehicles */}
+      {/* 1. Total Fleet */}
       <KPICardItem
-        label="Active Vehicles"
-        value={activeVehicles}
-        subtext="Vehicles currently contributing data"
+        label={t('totalFleet')}
+        value={formatNumber(totalBuses, language)}
+        subtext={t('totalFleetSub')}
         icon={BusFront}
-        badgeBg="#ECFDF5"
-        badgeColor="#10B981"
-        trendText="0.43% ↑"
-        trendPositive={true}
-      />
-
-      {/* 2. Data Points Collected */}
-      <KPICardItem
-        label="Data Points Collected"
-        value={dataPointsToday}
-        subtext="Today"
-        icon={Database}
-        badgeBg="#FFFBEB"
-        badgeColor="#F59E0B"
-        trendText="4.35% ↑"
-        trendPositive={true}
-      />
-
-      {/* 3. Road Conditions */}
-      <KPICardItem
-        label="Road Conditions"
-        value={roadConditionPercent}
-        subtext="Current assessment"
-        icon={Activity}
-        badgeBg="#F5F3FF"
-        badgeColor="#8B5CF6"
-        trendText="2.59% ↑"
-        trendPositive={true}
-      />
-
-      {/* 4. Active Alerts */}
-      <KPICardItem
-        label="Active Alerts"
-        value={activeAlertsCount}
-        subtext="Require attention"
-        icon={AlertTriangle}
         badgeBg="#EFF6FF"
-        badgeColor="#3B82F6"
-        trendText="-0.96% ↓"
+        badgeColor="#1D4ED8"
+        trendText="+3.2%"
         trendPositive={true}
+        onViewDetails={() => navigate('/fleet')}
+        viewDetailsLabel={t('viewDetails')}
       />
 
-      {/* 5. Issues Detected */}
+      {/* 2. Active Buses */}
       <KPICardItem
-        label="Issues Detected"
-        value={issuesDetectedCount}
-        subtext="Today"
-        icon={AlertOctagon}
+        label={t('activeBuses')}
+        value={formatNumber(activeCount, language)}
+        subtext={t('activeBusesSub')}
+        icon={Activity}
+        badgeBg="#ECFDF5"
+        badgeColor="#059669"
+        trendText="+4.35%"
+        trendPositive={true}
+        onViewDetails={() => navigate('/fleet')}
+        viewDetailsLabel={t('viewDetails')}
+      />
+
+      {/* 3. On-Time Buses */}
+      <KPICardItem
+        label={t('onTimeBuses')}
+        value={`${formatPercent(onTimePercent, language)} (${formatNumber(onTimeCount, language)})`}
+        subtext={t('onTimeBusesSub')}
+        icon={Clock}
+        badgeBg="#F0FDF4"
+        badgeColor="#16A34A"
+        trendText="+2.59%"
+        trendPositive={true}
+        onViewDetails={() => navigate('/traffic')}
+        viewDetailsLabel={t('viewDetails')}
+      />
+
+      {/* 4. Delayed Buses */}
+      <KPICardItem
+        label={t('delayedBuses')}
+        value={formatNumber(delayedCount, language)}
+        subtext={t('delayedBusesSub')}
+        icon={Clock}
+        badgeBg="#FFFBEB"
+        badgeColor="#D97706"
+        trendText="-0.95%"
+        trendPositive={true}
+        onViewDetails={() => navigate('/traffic')}
+        viewDetailsLabel={t('viewDetails')}
+      />
+
+      {/* 5. Critical Alerts */}
+      <KPICardItem
+        label={t('criticalAlerts')}
+        value={formatNumber(criticalCount, language)}
+        subtext={t('criticalAlertsSub')}
+        icon={AlertTriangle}
         badgeBg="#FEF2F2"
-        badgeColor="#EF4444"
-        trendText="3.12% ↑"
-        trendPositive={false}
+        badgeColor="#DC2626"
+        trendText="-2 active"
+        trendPositive={true}
+        onViewDetails={() => navigate('/alerts')}
+        viewDetailsLabel={t('viewDetails')}
       />
 
-      {/* 6. Coverage */}
+      {/* 6. Passenger Demand */}
       <KPICardItem
-        label="Coverage"
-        value={coverageKm}
-        subtext="Monitored routes"
-        icon={MapPin}
-        badgeBg="#ECFEFF"
-        badgeColor="#06B6D4"
-        trendText="1.85% ↑"
+        label={t('passengerDemand')}
+        value={`${demand?.summary?.index || 88}%`}
+        subtext={`${formatNumber(demand?.summary?.totalWaitingPassengers || 24860, language)} ${t('unitsPassengers')}`}
+        icon={Users}
+        badgeBg="#F5F3FF"
+        badgeColor="#7C3AED"
+        trendText="+12% surge"
+        trendPositive={false}
+        onViewDetails={() => navigate('/demand')}
+        viewDetailsLabel={t('viewDetails')}
+      />
+
+      {/* 7. Buses in Depot Maintenance */}
+      <KPICardItem
+        label={t('maintenanceBuses')}
+        value={formatNumber(maintenanceCount, language)}
+        subtext={t('maintenanceBusesSub')}
+        icon={Wrench}
+        badgeBg="#F8FAFC"
+        badgeColor="#475569"
+        trendText="Optimal"
         trendPositive={true}
+        onViewDetails={() => navigate('/fleet')}
+        viewDetailsLabel={t('viewDetails')}
+      />
+
+      {/* 8. Depot Utilization */}
+      <KPICardItem
+        label={t('depotUtilization')}
+        value="84.2%"
+        subtext={t('depotUtilizationSub')}
+        icon={Building2}
+        badgeBg="#F0F9FF"
+        badgeColor="#0284C7"
+        trendText="8 Depots"
+        trendPositive={true}
+        onViewDetails={() => navigate('/map')}
+        viewDetailsLabel={t('viewDetails')}
       />
     </div>
   );
 };
+
+export default KPICards;

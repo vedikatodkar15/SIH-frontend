@@ -10,6 +10,7 @@ import { FleetStatus } from '../components/FleetStatus';
 import { DataQuality } from '../components/DataQuality';
 import { RecentActivity } from '../components/RecentActivity';
 import { AnalyticsCharts } from '../components/AnalyticsCharts';
+import { StandbyDispatchModal } from '../components/StandbyDispatchModal';
 import { 
   RECENT_ACTIVITY_ITEMS, 
   FLEET_UNITS, 
@@ -24,6 +25,7 @@ export const Dashboard: React.FC = () => {
   const [timePeriod, setTimePeriod] = useState<string>('live');
   const [lastUpdated, setLastUpdated] = useState<string>('08 Sep 2026, 10:42 AM');
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
+  const [isStandbyModalOpen, setIsStandbyModalOpen] = useState<boolean>(false);
 
   // Moving fleet units live state
   const [fleetUnits, setFleetUnits] = useState<FleetUnit[]>(FLEET_UNITS);
@@ -55,7 +57,7 @@ export const Dashboard: React.FC = () => {
     const interval = setInterval(() => {
       setDataPointsCount(prev => prev + Math.floor(Math.random() * 4) + 1);
 
-      // 10% chance to push a subtle new simulated observation
+      // 15% chance to push a simulated observation
       if (Math.random() > 0.85) {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -92,17 +94,14 @@ export const Dashboard: React.FC = () => {
     return () => clearInterval(interval);
   }, [isSimulating]);
 
-  // Handle clicking an AI detection category card -> filter map
   const handleSelectAICategory = (categoryType: string) => {
     setMapCategory(categoryType);
-    // Smooth scroll to map if scrolled down
     const mapEl = document.getElementById('urban-map-section');
     if (mapEl) {
       mapEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   };
 
-  // Handle inspecting an alert -> pan map to its coordinates
   const handleInspectAlert = (obs: UrbanObservation) => {
     setFocusedCoordinate([obs.lat, obs.lng]);
     const mapEl = document.getElementById('urban-map-section');
@@ -111,7 +110,6 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  // Handle selecting a vehicle from Fleet list -> pan map to its coordinates
   const handleSelectVehicle = (vehicle: FleetUnit) => {
     setSelectedVehicleId(vehicle.id);
     setFocusedCoordinate([vehicle.lat, vehicle.lng]);
@@ -121,7 +119,6 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  // Manual trigger for edge sync
   const handleManualSync = () => {
     setDataPointsCount(prev => prev + 120);
     const now = new Date();
@@ -137,6 +134,18 @@ export const Dashboard: React.FC = () => {
     setActivityStream(prev => [syncAct, ...prev.slice(0, 9)]);
   };
 
+  const handleStandbySuccess = () => {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const deployAct: RecentActivityItem = {
+      id: `ACT-DEPLOY-${Date.now()}`,
+      time: timeStr,
+      message: "Standby electric buses #EB-204 and #EB-209 deployed to Route 12 corridor from Swargate Depot",
+      type: "telemetry"
+    };
+    setActivityStream(prev => [deployAct, ...prev.slice(0, 9)]);
+  };
+
   return (
     <div style={{
       display: 'flex',
@@ -147,7 +156,7 @@ export const Dashboard: React.FC = () => {
       width: '100%'
     }}>
       
-      {/* 1. Dashboard Header & Filter Strip (Section 5) */}
+      {/* 1. Command Center Operational Summary & Quick Actions */}
       <DashboardHeader
         selectedCity={selectedCity}
         setSelectedCity={setSelectedCity}
@@ -159,22 +168,16 @@ export const Dashboard: React.FC = () => {
         isSimulating={isSimulating}
         onToggleSimulation={() => setIsSimulating(!isSimulating)}
         onRefresh={handleManualSync}
+        onDeployStandby={() => setIsStandbyModalOpen(true)}
       />
 
-      {/* 2. KPI Summary Cards (Section 6) */}
-      <KPICards
-        activeVehicles={128}
-        dataPointsToday={dataPointsCount.toLocaleString()}
-        roadConditionPercent="94% Normal"
-        activeAlertsCount="07"
-        issuesDetectedCount={36}
-        coverageKm="82 km"
-      />
+      {/* 2. NextAdmin Style KPI Summary Cards */}
+      <KPICards />
 
-      {/* 3. NextAdmin Executive Graphs: Ingestion Telemetry & Transit Velocity */}
+      {/* 3. NextAdmin Executive Graphs: Dual-Area Chart, Stacked Bar, Donut, Corridor Bar */}
       <AnalyticsCharts />
 
-      {/* 4. Main GIS Map (55-65%) + Urban Intelligence Summary (35-45%) (Sections 7, 8, 9, 10) */}
+      {/* 4. Main GIS Map (55-65%) + Urban Intelligence Summary (35-45%) */}
       <div 
         id="urban-map-section"
         style={{
@@ -198,44 +201,48 @@ export const Dashboard: React.FC = () => {
         <IntelligenceSummary />
       </div>
 
-      {/* 4. AI-Based Detection Section (Section 11) */}
+      {/* 5. AI-Based Detection Section */}
       <AIDetection
         onSelectCategory={handleSelectAICategory}
         activeCategory={mapCategory}
       />
 
-      {/* 5. Priority Alerts Table (Section 12) */}
+      {/* 6. Priority Alerts Table */}
       <div id="priority-alerts-section">
         <AlertsPanel
           onInspectObservation={handleInspectAlert}
         />
       </div>
 
-      {/* 6. AI-Assisted Recommended Actions (Section 13) */}
+      {/* 7. AI-Assisted Decision Support & XAI */}
       <DecisionSupport />
 
-      {/* 7. Fleet Intelligence, Data Quality & Recent Activity (Sections 14, 15, 16) */}
+      {/* 8. Fleet Intelligence, Data Quality & Recent Activity */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
         gap: '20px',
         alignItems: 'stretch'
       }}>
-        {/* Section 14: Fleet Intelligence */}
         <FleetStatus
           vehicles={fleetUnits}
           onSelectVehicle={handleSelectVehicle}
           selectedVehicleId={selectedVehicleId}
         />
 
-        {/* Section 15: Data Quality & System Status */}
         <DataQuality />
 
-        {/* Section 16: Recent Activity Timeline */}
         <RecentActivity
           activityItems={activityStream}
         />
       </div>
+
+      {/* Standby Bus Dispatch Modal */}
+      <StandbyDispatchModal
+        isOpen={isStandbyModalOpen}
+        onClose={() => setIsStandbyModalOpen(false)}
+        onConfirmSuccess={handleStandbySuccess}
+      />
 
     </div>
   );
